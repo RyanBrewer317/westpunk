@@ -1,0 +1,9 @@
+ed752295db8857b3a7f36c3f57e38509cadff471		branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/sys
+b0526f3d87448f0401ea3f7f3a81aa9e6ab4804d		branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/sys
+e5e7981a10699f0af2ffea4c0e0f542e447b2e4a		branch 'master' of https://go.googlesource.com/sys
+98c5dad5d1a0e8a73845ecc8897d0bd56586511d		branch 'release-branch.go1.11' of https://go.googlesource.com/sys
+3b5209105503162ded1863c307ac66fec31120dd		branch 'release-branch.go1.12' of https://go.googlesource.com/sys
+fde4db37ae7ad8191b03d30d27f258b5291ae4e3		branch 'release-branch.go1.13' of https://go.googlesource.com/sys
+9e5cf931a04b8d04b671ad42d4d00d66a0ca00e8		branch 'release-branch.go1.14-cmd' of https://go.googlesource.com/sys
+915c9c3d4ccf72b2ceac5e8303d722b16b699366		branch 'release-branch.go1.14-std' of https://go.googlesource.com/sys
+bc7a7d42d5c30f4d0fe808715c002826ce2c624e		branch 'release-branch.go1.15' of https://go.googlesource.com/sys

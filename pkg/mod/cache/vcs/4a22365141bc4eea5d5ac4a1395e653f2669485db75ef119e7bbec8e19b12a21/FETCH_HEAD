@@ -1,0 +1,14 @@
+6f5299370f2bb1ac5d41c561fd1e5da511c2a3db		branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/net
+4163338589ed626ba11276b63facaef1f55349d4		branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/net
+aaa1db679c0d7765d2b1cb1f92cac8ebf4d94c53		branch 'master' of https://go.googlesource.com/net
+0ed95abb35c445290478a5348a7b38bb154135fd		branch 'release-branch.go1.10' of https://go.googlesource.com/net
+b1cc14aba47abf96f96818003fa4caad3a4b4e86		branch 'release-branch.go1.11' of https://go.googlesource.com/net
+cdfb69ac37fc6fa907650654115ebebb3aae2087		branch 'release-branch.go1.12' of https://go.googlesource.com/net
+13f9640d40b9cc418fb53703dfbd177679788ceb		branch 'release-branch.go1.13' of https://go.googlesource.com/net
+4acb7895a0574887276b79d6c959e9aa3182386d		branch 'release-branch.go1.14' of https://go.googlesource.com/net
+aea8142032473bb41e874c31eb771c364b790fb4		branch 'release-branch.go1.15' of https://go.googlesource.com/net
+9cb79a0838511d3cab064fe8aa042b76e7acc00b		branch 'release-branch.go1.15-bundle' of https://go.googlesource.com/net
+62685c2d7ca23c807425dca88b11a3e2323dab41		branch 'release-branch.go1.6' of https://go.googlesource.com/net
+d4c55e66d8c3a2f3382d264b08e3e3454a66355a		branch 'release-branch.go1.7' of https://go.googlesource.com/net
+186fd3fc8194a5e9980a82230d69c1ff7134229f		branch 'release-branch.go1.8' of https://go.googlesource.com/net
+44b7c21cbf19450f38b337eb6b6fe4f6496fb5b3		branch 'release-branch.go1.9' of https://go.googlesource.com/net

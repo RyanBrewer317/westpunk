@@ -1,0 +1,12 @@
+e41a6a4f3b61149dd5d84af28eaf4278710af3cb		branch 'dev.cmdgo' of https://go.googlesource.com/mod
+dbbbf8a3c6ea13deb539e0b1e6f56929c6bc5403		branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/mod
+0f08993efd8a8ec67e75bcccf86b0e1569b0ab0a		branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/mod
+154199deab1bd1b6a11f3a0524fa42cf2ca539df		branch 'master' of https://go.googlesource.com/mod
+ed3ec21bb8e252814c380df79a80f366440ddb2d		branch 'release-branch.go1.14' of https://go.googlesource.com/mod
+859b3ef565e237f9f1a0fb6b55385c497545680d		branch 'release-branch.go1.15' of https://go.googlesource.com/mod
+d8296639b499981d50d327e4b5714c5734e925d6		tag 'v0.1.0' of https://go.googlesource.com/mod
+ed3ec21bb8e252814c380df79a80f366440ddb2d		tag 'v0.2.0' of https://go.googlesource.com/mod
+859b3ef565e237f9f1a0fb6b55385c497545680d		tag 'v0.3.0' of https://go.googlesource.com/mod
+3bfbaada29be620417d472f349d55056286b2119		tag 'v0.4.0' of https://go.googlesource.com/mod
+6ce8bb3f08e0e47592fe93e007071d86dcf214bb		tag 'v0.4.1' of https://go.googlesource.com/mod
+d6ab96f2441f9631f81862375ef66782fc4a9c12		tag 'v0.4.2' of https://go.googlesource.com/mod

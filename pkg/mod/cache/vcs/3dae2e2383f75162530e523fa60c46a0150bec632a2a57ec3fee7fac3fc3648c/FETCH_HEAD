@@ -1,0 +1,5 @@
+5ec99f83aff198f5fbd629d6c8d8eb38a04218ca		branch 'internal-branch.go1.16-vendor' of https://go.googlesource.com/xerrors
+5ec99f83aff198f5fbd629d6c8d8eb38a04218ca		branch 'internal-branch.go1.17-vendor' of https://go.googlesource.com/xerrors
+5ec99f83aff198f5fbd629d6c8d8eb38a04218ca		branch 'master' of https://go.googlesource.com/xerrors
+1b5146add8981d58be77b16229c0ff0f8bebd8c1		branch 'release-branch.go1.14' of https://go.googlesource.com/xerrors
+1a77d5e9f316d6917d88a497ab4db07399cbc923		branch 'release-branch.go1.15' of https://go.googlesource.com/xerrors

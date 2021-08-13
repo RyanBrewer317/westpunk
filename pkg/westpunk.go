@@ -87,10 +87,10 @@ func (g *Game) Update() error {
 	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && player_y-player_height == ground_y {
 		player_y_velocity += 0.5
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyD) {
+	if ebiten.IsKeyPressed(ebiten.KeyD) && player_x < place_width-0.5*screen_width/pixel_yard_ratio {
 		player_x += 0.1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyA) {
+	if ebiten.IsKeyPressed(ebiten.KeyA) && player_x > 0.5*screen_width/pixel_yard_ratio {
 		player_x -= 0.1
 	}
 	player_x_velocity *= 0.8

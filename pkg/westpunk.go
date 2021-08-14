@@ -6,7 +6,10 @@ import (
 	_ "image/png"
 	"log"
 	"math"
-	"math/rand"
+
+	// "math/rand"
+	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -17,7 +20,6 @@ import (
 // go-sqlite3 docs https://github.com/mattn/go-sqlite3/blob/v1.14.8/_example/simple/simple.go
 // ebiten docs https://ebiten.org/tour/hello_world.html
 
-var db *sql.DB
 var player_img *ebiten.Image
 var ground_img *ebiten.Image
 var oak_img *ebiten.Image
@@ -143,12 +145,20 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return int(screen_width), int(screen_height)
 }
 
-func dbrun(sqlstuff string) {
+func dbrun(db *sql.DB, sqlstuff string) {
 	_, err := db.Exec(sqlstuff)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlstuff)
 		return
 	}
+}
+
+func dbget(db *sql.DB, sqlstuff string) *sql.Rows {
+	rows, err := db.Query(sqlstuff)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("%q: %s\n", err, sqlstuff))
+	}
+	return rows
 }
 
 func draw_player(screen *ebiten.Image, x float64, y float64, vp viewport) {
@@ -188,18 +198,27 @@ func main() {
 	defer db.Close()
 
 	grid = make(map[vertex][]thing)
-	tree_xs := [int(place_width)]int{}
-	for i := 0; i < int(place_width); i++ {
-		tree_xs[i] = i
-	}
-	rand.Shuffle(int(place_width), func(i, j int) { tree_xs[i], tree_xs[j] = tree_xs[j], tree_xs[i] })
-	for i := 0; i < 20; i++ {
-		grid[vertex{tree_xs[i], 0}] = append(grid[vertex{tree_xs[i], 0}], oak)
+	rows := dbget(db, "select * from things WHERE placeID = \"place0\"")
+	defer rows.Close()
+	for rows.Next() {
+		fmt.Println("hi")
+		var thingID, placeID, location, offset, textureID, thingtype string
+		err = rows.Scan(&thingID, &placeID, &location, &offset, &textureID, &thingtype)
+		if err != nil {
+			log.Fatal(err)
+		}
+		locsplit := strings.Split(location, " ")
+		x, _ := strconv.Atoi(locsplit[0])
+		y, _ := strconv.Atoi(locsplit[1])
+		switch t := thingtype; t {
+		case "oak":
+			grid[vertex{x, y}] = append(grid[vertex{x, y}], oak)
+		}
 	}
 
 	ebiten.SetWindowSize(int(screen_width), int(screen_height))
 	ebiten.SetWindowTitle("Westpunk")
-	if err := ebiten.RunGame(&Game{}); err != nil {
+	if err = ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -201,7 +201,6 @@ func main() {
 	rows := dbget(db, "select * from things WHERE placeID = \"place0\"")
 	defer rows.Close()
 	for rows.Next() {
-		fmt.Println("hi")
 		var thingID, placeID, location, offset, textureID, thingtype string
 		err = rows.Scan(&thingID, &placeID, &location, &offset, &textureID, &thingtype)
 		if err != nil {

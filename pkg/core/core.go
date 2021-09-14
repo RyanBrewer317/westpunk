@@ -92,3 +92,7 @@ var (
 	PlayerDrawOptions ebiten.DrawImageOptions
 	GroundDrawOptions ebiten.DrawImageOptions
 )
+
+func GetPXY(y float64) float64 {
+	return ScreenHeight - (y * PixelYardRatio)
+}

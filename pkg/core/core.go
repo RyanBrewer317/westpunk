@@ -3,7 +3,7 @@ package core
 import (
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
 type Vertex struct {

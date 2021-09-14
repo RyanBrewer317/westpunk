@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hajimehoshi/ebiten/v2"
+	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "github.com/mattn/go-sqlite3"
@@ -24,9 +24,9 @@ import (
 
 func init() {
 	var err error
-	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("player.png")
+	core.PlayerImg, _, _ = ebitenutil.NewImageFromFile("player.png")
 	core.PlayerDrawOptions = ebiten.DrawImageOptions{}
-	core.GroundImg, _, err = ebitenutil.NewImageFromFile("ground.png")
+	core.GroundImg, _, _ = ebitenutil.NewImageFromFile("ground.png")
 	core.GroundDrawOptions = ebiten.DrawImageOptions{}
 	core.OakImg, _, err = ebitenutil.NewImageFromFile("tree.png")
 	if err != nil {
@@ -104,13 +104,13 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return int(core.ScreenWidth), int(core.ScreenHeight)
 }
 
-func dbrun(db *sql.DB, sqlstuff string) {
-	_, err := db.Exec(sqlstuff)
-	if err != nil {
-		log.Printf("%q: %s\n", err, sqlstuff)
-		return
-	}
-}
+// func dbrun(db *sql.DB, sqlstuff string) {
+// 	_, err := db.Exec(sqlstuff)
+// 	if err != nil {
+// 		log.Printf("%q: %s\n", err, sqlstuff)
+// 		return
+// 	}
+// }
 
 func dbget(db *sql.DB, sqlstuff string) *sql.Rows {
 	rows, err := db.Query(sqlstuff)

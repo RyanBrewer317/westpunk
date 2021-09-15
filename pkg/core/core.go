@@ -33,11 +33,100 @@ type Stance struct {
 	RightFoot     float64
 	LeftFoot      float64
 	Weapon        float64
+	Direction     Direction
 }
 
+const AnimationSpeed int = 10
+
 var (
-	RestPose     Stance = Stance{0.01, 0.01, 5 * math.Pi / 6, -1, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01}
-	PlayerStance Stance = RestPose
+	RestPose Stance = Stance{
+		RightUpperArm: math.Pi / 6,
+		LeftUpperArm:  -math.Pi / 6,
+		Direction:     Right,
+		RightUpperLeg: 0,
+		LeftUpperLeg:  0,
+		Head:          0,
+		Torso:         0,
+		RightLowerArm: 0,
+		RightLowerLeg: 0,
+		RightFoot:     0,
+		LeftLowerArm:  0,
+		LeftLowerLeg:  0,
+		LeftFoot:      0,
+		Weapon:        0,
+	}
+	WalkRight1 Stance = Stance{
+		RightUpperArm: math.Pi / 6,
+		LeftUpperArm:  -math.Pi / 6,
+		RightUpperLeg: -math.Pi / 6,
+		LeftUpperLeg:  math.Pi / 6,
+		Direction:     Right,
+		Head:          0,
+		Torso:         0,
+		RightLowerArm: 0,
+		RightLowerLeg: 0,
+		RightFoot:     0,
+		LeftLowerArm:  0,
+		LeftLowerLeg:  0,
+		LeftFoot:      0,
+		Weapon:        0,
+	}
+	WalkRight2 Stance = Stance{
+		RightUpperArm: -math.Pi / 6,
+		LeftUpperArm:  math.Pi / 6,
+		RightUpperLeg: math.Pi / 6,
+		LeftUpperLeg:  -math.Pi / 6,
+		Direction:     Right,
+		Head:          0,
+		Torso:         0,
+		RightLowerArm: 0,
+		RightLowerLeg: 0,
+		RightFoot:     0,
+		LeftLowerArm:  0,
+		LeftLowerLeg:  0,
+		LeftFoot:      0,
+		Weapon:        0,
+	}
+	WalkLeft1 Stance = Stance{
+		RightUpperArm: math.Pi / 6,
+		LeftUpperArm:  -math.Pi / 6,
+		RightUpperLeg: -math.Pi / 6,
+		LeftUpperLeg:  math.Pi / 6,
+		Direction:     Left,
+		Head:          0,
+		Torso:         0,
+		RightLowerArm: 0,
+		RightLowerLeg: 0,
+		RightFoot:     0,
+		LeftLowerArm:  0,
+		LeftLowerLeg:  0,
+		LeftFoot:      0,
+		Weapon:        0,
+	}
+	WalkLeft2 Stance = Stance{
+		RightUpperArm: -math.Pi / 6,
+		LeftUpperArm:  math.Pi / 6,
+		RightUpperLeg: math.Pi / 6,
+		LeftUpperLeg:  -math.Pi / 6,
+		Direction:     Left,
+		Head:          0,
+		Torso:         0,
+		RightLowerArm: 0,
+		RightLowerLeg: 0,
+		RightFoot:     0,
+		LeftLowerArm:  0,
+		LeftLowerLeg:  0,
+		LeftFoot:      0,
+		Weapon:        0,
+	}
+	PlayerStance Stance = Stance{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Right}
+)
+
+type Direction int
+
+const (
+	Right Direction = iota + 1
+	Left
 )
 
 type Thing int
@@ -95,4 +184,39 @@ var (
 
 func GetPXY(y float64) float64 {
 	return ScreenHeight - (y * PixelYardRatio)
+}
+
+func DrawImage(screen *ebiten.Image, img *ebiten.Image, drawoptions ebiten.DrawImageOptions, x float64, y float64) {
+	drawoptions.GeoM.Translate(x, y)
+	screen.DrawImage(img, &drawoptions)
+}
+
+var Clock int = 0
+
+func ShiftStance(stance1 Stance, stance2 Stance) Stance {
+	c := float64(Clock%(2*AnimationSpeed)) / float64(2*AnimationSpeed)
+	s1 := stance1
+	s2 := stance2
+	if c > 0.5 {
+		c -= 0.5
+		tmp := s1
+		s1 = s2
+		s2 = tmp
+	}
+	return Stance{
+		Head:          c * (s2.Head - s1.Head),
+		Torso:         c * (s2.Torso - s1.Torso),
+		RightUpperArm: c * (s2.RightUpperArm - s1.RightUpperArm),
+		LeftUpperArm:  c * (s2.LeftUpperArm - s1.LeftUpperArm),
+		RightLowerArm: c * (s2.RightLowerArm - s1.RightLowerArm),
+		LeftLowerArm:  c * (s2.LeftLowerArm - s1.LeftLowerArm),
+		RightUpperLeg: c * (s2.RightUpperLeg - s1.RightUpperLeg),
+		LeftUpperLeg:  c * (s2.LeftUpperLeg - s1.LeftUpperLeg),
+		RightLowerLeg: c * (s2.RightLowerLeg - s1.RightLowerLeg),
+		LeftLowerLeg:  c * (s2.LeftLowerLeg - s1.LeftLowerLeg),
+		RightFoot:     c * (s2.RightFoot - s1.RightFoot),
+		LeftFoot:      c * (s2.LeftFoot - s1.LeftFoot),
+		Weapon:        c * (s2.Weapon - s1.Weapon),
+		Direction:     s1.Direction,
+	}
 }

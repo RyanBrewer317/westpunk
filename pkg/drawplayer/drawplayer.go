@@ -8,18 +8,22 @@ import (
 	"rbrewer.com/core"
 )
 
-func draw_img(screen *ebiten.Image, img *ebiten.Image, drawoptions ebiten.DrawImageOptions, x float64, y float64) {
-	drawoptions.GeoM.Translate(x, y)
-	screen.DrawImage(img, &drawoptions)
-}
-
 func DrawPlayer(screen *ebiten.Image, x float64, y float64) {
-	draw_player_left_arm(screen, x, y)
-	draw_player_torso(screen, x, y)
-	draw_player_head(screen, x, y)
-	draw_player_right_arm(screen, x, y)
-	draw_player_left_leg(screen, x, y)
-	draw_player_right_leg(screen, x, y)
+	if core.PlayerStance.Direction == core.Right {
+		draw_player_left_arm(screen, x, y)
+		draw_player_left_leg(screen, x, y)
+		draw_player_torso(screen, x, y)
+		draw_player_head(screen, x, y)
+		draw_player_right_leg(screen, x, y)
+		draw_player_right_arm(screen, x, y)
+	} else if core.PlayerStance.Direction == core.Left {
+		draw_player_right_arm(screen, x, y)
+		draw_player_right_leg(screen, x, y)
+		draw_player_torso(screen, x, y)
+		draw_player_head(screen, x, y)
+		draw_player_left_leg(screen, x, y)
+		draw_player_left_arm(screen, x, y)
+	}
 }
 
 func draw_player_head(screen *ebiten.Image, x float64, y float64) {
@@ -49,19 +53,19 @@ func torso_rotation_diff(r float64) (float64, float64) {
 	}
 	x := 0.0
 	y := 0.0
-	if 0 < theta && theta < math.Pi/2 {
+	if 0 <= theta && theta < math.Pi/2 {
 		x += r * math.Cos(theta)
 		y -= r * math.Sin(theta)
 	}
-	if math.Pi/2 < theta && theta < math.Pi {
+	if math.Pi/2 <= theta && theta < math.Pi {
 		x -= r * math.Sin(theta-math.Pi/2)
 		y -= r * math.Cos(theta-math.Pi/2)
 	}
-	if math.Pi < theta && theta < 3*math.Pi/2 {
+	if math.Pi <= theta && theta < 3*math.Pi/2 {
 		x -= r * math.Cos(theta-math.Pi)
 		y += r * math.Sin(theta-math.Pi)
 	}
-	if 3*math.Pi/2 < theta && theta < 2*math.Pi {
+	if 3*math.Pi/2 <= theta && theta < 2*math.Pi {
 		x += r * math.Sin(theta-3*math.Pi/2)
 		y += r * math.Cos(theta-3*math.Pi/2)
 	}
@@ -99,19 +103,19 @@ func draw_player_left_arm(screen *ebiten.Image, x float64, y float64) {
 	leftelbowy := leftshouldery - (core.UpperArmHeight * math.Cos(theta))
 	var leftforearmx float64
 	var leftforearmy float64
-	if 0 < theta2 && theta2 < math.Pi/2 {
+	if 0 <= theta2 && theta2 < math.Pi/2 {
 		leftforearmx = leftelbowx - (core.LowerArmWidth/2)*math.Cos(theta2)
 		leftforearmy = leftelbowy + (core.LowerArmWidth/2)*math.Sin(theta2)
 	}
-	if math.Pi/2 < theta2 && theta2 < math.Pi {
+	if math.Pi/2 <= theta2 && theta2 < math.Pi {
 		leftforearmx = leftelbowx + (core.LowerArmWidth/2)*math.Cos(math.Pi-theta2)
 		leftforearmy = leftelbowy + (core.LowerArmWidth/2)*math.Sin(math.Pi-theta2)
 	}
-	if math.Pi < theta2 && theta2 < 3*math.Pi/2 {
+	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
 		leftforearmx = leftelbowx + (core.LowerArmWidth/2)*math.Sin(3*math.Pi/2-theta2)
 		leftforearmy = leftelbowy - (core.LowerArmWidth/2)*math.Cos(3*math.Pi/2-theta2)
 	}
-	if 3*math.Pi/2 < theta2 && theta2 < 2*math.Pi {
+	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
 		leftforearmx = leftelbowx - (core.LowerArmWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		leftforearmy = leftelbowy - (core.LowerArmWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
@@ -140,19 +144,19 @@ func draw_player_right_arm(screen *ebiten.Image, x float64, y float64) {
 	rightelbowy := rightshouldery - (core.UpperArmHeight * math.Cos(theta))
 	var rightforearmx float64
 	var rightforearmy float64
-	if 0 < theta2 && theta2 < math.Pi/2 {
+	if 0 <= theta2 && theta2 < math.Pi/2 {
 		rightforearmx = rightelbowx - (core.LowerArmWidth/2)*math.Cos(theta2)
 		rightforearmy = rightelbowy + (core.LowerArmWidth/2)*math.Sin(theta2)
 	}
-	if math.Pi/2 < theta2 && theta2 < math.Pi {
+	if math.Pi/2 <= theta2 && theta2 < math.Pi {
 		rightforearmx = rightelbowx + (core.LowerArmWidth/2)*math.Cos(math.Pi-theta2)
 		rightforearmy = rightelbowy + (core.LowerArmWidth/2)*math.Sin(math.Pi-theta2)
 	}
-	if math.Pi < theta2 && theta2 < 3*math.Pi/2 {
+	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
 		rightforearmx = rightelbowx + (core.LowerArmWidth/2)*math.Sin(3*math.Pi/2-theta2)
 		rightforearmy = rightelbowy - (core.LowerArmWidth/2)*math.Cos(3*math.Pi/2-theta2)
 	}
-	if 3*math.Pi/2 < theta2 && theta2 < 2*math.Pi {
+	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
 		rightforearmx = rightelbowx - (core.LowerArmWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		rightforearmy = rightelbowy - (core.LowerArmWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
@@ -182,19 +186,19 @@ func draw_player_left_leg(screen *ebiten.Image, x float64, y float64) {
 	leftkneey := pelvis_left_y - (core.UpperLegHeight * math.Cos(theta))
 	var leftlowerlegx float64
 	var leftlowerlegy float64
-	if 0 < theta2 && theta2 < math.Pi/2 {
+	if 0 <= theta2 && theta2 < math.Pi/2 {
 		leftlowerlegx = leftkneex - (core.LowerLegWidth/2)*math.Cos(theta2)
 		leftlowerlegy = leftkneey + (core.LowerLegWidth/2)*math.Sin(theta2)
 	}
-	if math.Pi/2 < theta2 && theta2 < math.Pi {
+	if math.Pi/2 <= theta2 && theta2 < math.Pi {
 		leftlowerlegx = leftkneex + (core.LowerLegWidth/2)*math.Cos(math.Pi-theta2)
 		leftlowerlegy = leftkneey + (core.LowerLegWidth/2)*math.Sin(math.Pi-theta2)
 	}
-	if math.Pi < theta2 && theta2 < 3*math.Pi/2 {
+	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
 		leftlowerlegx = leftkneex + (core.LowerLegWidth/2)*math.Sin(3*math.Pi/2-theta2)
 		leftlowerlegy = leftkneey - (core.LowerLegWidth/2)*math.Cos(3*math.Pi/2-theta2)
 	}
-	if 3*math.Pi/2 < theta2 && theta2 < 2*math.Pi {
+	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
 		leftlowerlegx = leftkneex - (core.LowerLegWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		leftlowerlegy = leftkneey - (core.LowerLegWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
@@ -224,19 +228,19 @@ func draw_player_right_leg(screen *ebiten.Image, x float64, y float64) {
 	rightkneey := pelvis_right_y - (core.UpperLegHeight * math.Cos(theta))
 	var rightlowerlegx float64
 	var rightlowerlegy float64
-	if 0 < theta2 && theta2 < math.Pi/2 {
+	if 0 <= theta2 && theta2 < math.Pi/2 {
 		rightlowerlegx = rightkneex - (core.LowerLegWidth/2)*math.Cos(theta2)
 		rightlowerlegy = rightkneey + (core.LowerLegWidth/2)*math.Sin(theta2)
 	}
-	if math.Pi/2 < theta2 && theta2 < math.Pi {
+	if math.Pi/2 <= theta2 && theta2 < math.Pi {
 		rightlowerlegx = rightkneex + (core.LowerLegWidth/2)*math.Cos(math.Pi-theta2)
 		rightlowerlegy = rightkneey + (core.LowerLegWidth/2)*math.Sin(math.Pi-theta2)
 	}
-	if math.Pi < theta2 && theta2 < 3*math.Pi/2 {
+	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
 		rightlowerlegx = rightkneex + (core.LowerLegWidth/2)*math.Sin(3*math.Pi/2-theta2)
 		rightlowerlegy = rightkneey - (core.LowerLegWidth/2)*math.Cos(3*math.Pi/2-theta2)
 	}
-	if 3*math.Pi/2 < theta2 && theta2 < 2*math.Pi {
+	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
 		rightlowerlegx = rightkneex - (core.LowerLegWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		rightlowerlegy = rightkneey - (core.LowerLegWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
@@ -248,7 +252,15 @@ func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, im
 	wi, hi := img.Size()
 	w := igw * core.PixelYardRatio
 	h := igh * core.PixelYardRatio
+	direction_scale := 1.0
+	direction_translation := 0.0
+	if core.PlayerStance.Direction == core.Left {
+		direction_scale = -1
+		direction_translation = float64(wi)
+	}
+	drawoptions.GeoM.Scale(direction_scale, 1)
+	drawoptions.GeoM.Translate(direction_translation, 0)
 	drawoptions.GeoM.Scale(w/float64(wi), h/float64(hi))
 	drawoptions.GeoM.Rotate(theta)
-	draw_img(screen, img, drawoptions, igx*core.PixelYardRatio-core.VP.X, core.GetPXY(igy)+core.VP.Y)
+	core.DrawImage(screen, img, drawoptions, igx*core.PixelYardRatio-core.VP.X, core.GetPXY(igy)+core.VP.Y)
 }

@@ -37,6 +37,7 @@ func init() {
 type Game struct{}
 
 func (g *Game) Update() error {
+	core.Clock += 1
 	rightlegheight := core.UpperLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.RightUpperLeg) + core.LowerLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.RightUpperLeg+core.PlayerStance.RightLowerLeg)
 	leftlegheight := core.UpperLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.LeftUpperLeg) + core.LowerLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.LeftUpperLeg+core.PlayerStance.LeftLowerLeg)
 	core.PlayerHeight = core.TorsoHeight*math.Cos(core.PlayerStance.Torso) + math.Max(rightlegheight, leftlegheight)
@@ -51,9 +52,11 @@ func (g *Game) Update() error {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) && core.PlayerX < core.PlaceWidth-0.5*core.ScreenWidth/core.PixelYardRatio {
 		core.PlayerX += 0.1
+		core.PlayerStance = core.ShiftStance(core.WalkRight1, core.WalkRight2)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) && core.PlayerX > 0.5*core.ScreenWidth/core.PixelYardRatio {
 		core.PlayerX -= 0.1
+		core.PlayerStance = core.ShiftStance(core.WalkLeft1, core.WalkLeft2)
 	}
 	core.PlayerXVelocity *= 0.8
 	core.PlayerYVelocity *= 0.8
@@ -86,7 +89,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	for i := chunk_start_y; i < chunk_ends_y; i++ {
 		for j := chunk_start_x; j < chunk_ends_x; j++ {
-			chunklet := core.Grid[core.Vertex{j, i}]
+			chunklet := core.Grid[core.Vertex{X: j, Y: i}]
 			for k := 0; k < len(chunklet); k++ {
 				switch t := chunklet[k]; t {
 				case core.Oak:
@@ -120,16 +123,11 @@ func dbget(db *sql.DB, sqlstuff string) *sql.Rows {
 	return rows
 }
 
-func draw_img(screen *ebiten.Image, img *ebiten.Image, drawoptions ebiten.DrawImageOptions, x float64, y float64) {
-	drawoptions.GeoM.Translate(x, y)
-	screen.DrawImage(img, &drawoptions)
-}
-
 func draw_ground(screen *ebiten.Image) {
 	core.GroundDrawOptions.GeoM.Reset()
 	wi, hi := core.GroundImg.Size()
 	core.GroundDrawOptions.GeoM.Scale(core.PlaceWidth*core.PixelYardRatio/float64(wi), core.PlaceHeight*core.PixelYardRatio/float64(hi))
-	draw_img(screen, core.GroundImg, core.GroundDrawOptions, -core.VP.X, core.GetPXY(core.GroundY)+core.VP.Y)
+	core.DrawImage(screen, core.GroundImg, core.GroundDrawOptions, -core.VP.X, core.GetPXY(core.GroundY)+core.VP.Y)
 }
 
 func draw_oak(screen *ebiten.Image, x float64, y float64) {
@@ -162,7 +160,7 @@ func main() {
 		y, _ := strconv.Atoi(locsplit[1])
 		switch t := thingtype; t {
 		case "oak":
-			core.Grid[core.Vertex{x, y}] = append(core.Grid[core.Vertex{x, y}], core.Oak)
+			core.Grid[core.Vertex{X: x, Y: y}] = append(core.Grid[core.Vertex{X: x, Y: y}], core.Oak)
 		}
 	}
 

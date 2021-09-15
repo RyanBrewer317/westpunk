@@ -24,9 +24,15 @@ import (
 
 func init() {
 	var err error
-	core.PlayerImg, _, _ = ebitenutil.NewImageFromFile("player.png")
+	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("player.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	core.PlayerDrawOptions = ebiten.DrawImageOptions{}
-	core.GroundImg, _, _ = ebitenutil.NewImageFromFile("ground.png")
+	core.GroundImg, _, err = ebitenutil.NewImageFromFile("ground.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	core.GroundDrawOptions = ebiten.DrawImageOptions{}
 	core.OakImg, _, err = ebitenutil.NewImageFromFile("tree.png")
 	if err != nil {

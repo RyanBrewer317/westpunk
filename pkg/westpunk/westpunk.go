@@ -24,16 +24,11 @@ import (
 
 func init() {
 	var err error
-<<<<<<< HEAD
 	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("spritesheet.png")
-=======
-	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("player.png")
->>>>>>> e2d76378bcb5bb30802101a562477a88f01e1743
 	if err != nil {
 		log.Fatal(err)
 	}
 	core.PlayerDrawOptions = ebiten.DrawImageOptions{}
-<<<<<<< HEAD
 	core.GrassLayerImg, _, err = ebitenutil.NewImageFromFile("grasslayerground.png")
 	if err != nil {
 		log.Fatal(err)
@@ -42,13 +37,6 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-=======
-	core.GroundImg, _, err = ebitenutil.NewImageFromFile("ground.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	core.GroundDrawOptions = ebiten.DrawImageOptions{}
->>>>>>> e2d76378bcb5bb30802101a562477a88f01e1743
 	core.OakImg, _, err = ebitenutil.NewImageFromFile("tree.png")
 	if err != nil {
 		log.Fatal(err)

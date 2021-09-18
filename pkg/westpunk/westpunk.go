@@ -24,39 +24,164 @@ import (
 
 func init() {
 	var err error
-	core.PlayerImg, _, _ = ebitenutil.NewImageFromFile("player.png")
+	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("spritesheet.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	core.PlayerDrawOptions = ebiten.DrawImageOptions{}
-	core.GroundImg, _, _ = ebitenutil.NewImageFromFile("ground.png")
-	core.GroundDrawOptions = ebiten.DrawImageOptions{}
+	core.GrassLayerImg, _, err = ebitenutil.NewImageFromFile("grasslayerground.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	core.DirtLayerImg, _, err = ebitenutil.NewImageFromFile("dirtlayerground.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	core.OakImg, _, err = ebitenutil.NewImageFromFile("tree.png")
 	if err != nil {
 		log.Fatal(err)
 	}
+	core.BackgroundImg, _, err = ebitenutil.NewImageFromFile("background.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	core.BackgroundDrawOptions = ebiten.DrawImageOptions{}
+	wi, hi := core.BackgroundImg.Size()
+	core.BackgroundDrawOptions.GeoM.Scale(core.ScreenWidth/float64(wi), core.ScreenHeight/float64(hi))
 }
 
 type Game struct{}
 
 func (g *Game) Update() error {
-	core.Clock += 1
+	core.WalkingAnimationFrame += 1
+
 	rightlegheight := core.UpperLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.RightUpperLeg) + core.LowerLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.RightUpperLeg+core.PlayerStance.RightLowerLeg)
 	leftlegheight := core.UpperLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.LeftUpperLeg) + core.LowerLegHeight*math.Cos(core.PlayerStance.Torso+core.PlayerStance.LeftUpperLeg+core.PlayerStance.LeftLowerLeg)
 	core.PlayerHeight = core.TorsoHeight*math.Cos(core.PlayerStance.Torso) + math.Max(rightlegheight, leftlegheight)
+
 	if core.PlayerY-core.PlayerHeight > core.GroundY {
 		core.PlayerYVelocity -= 0.03
 	} else if core.PlayerYVelocity < 0 {
 		// core.PlayerYVelocity = 0
 		core.PlayerY = core.PlayerHeight
 	}
+
 	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.PlayerY-core.PlayerHeight == core.GroundY {
-		core.PlayerYVelocity += 0.5
+		if core.PlayerStance.Direction == core.Right {
+			if core.WalkingState == core.WalkingRight {
+				core.WalkingState = core.LeapingRight
+				core.WalkingStanceTo = core.LeapRight
+			} else {
+				core.WalkingState = core.JumpingRight
+				core.WalkingStanceTo = core.JumpRight1
+			}
+			core.WalkingStanceFrom = core.PlayerStance
+			core.WalkingAnimationFrame = 0
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		} else {
+			if core.WalkingState == core.WalkingLeft {
+				core.WalkingState = core.LeapingLeft
+				core.WalkingStanceTo = core.LeapLeft
+			} else {
+				core.WalkingState = core.JumpingLeft
+				core.WalkingStanceTo = core.JumpLeft1
+			}
+			core.WalkingStanceFrom = core.PlayerStance
+			core.WalkingAnimationFrame = 0
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyD) && core.PlayerX < core.PlaceWidth-0.5*core.ScreenWidth/core.PixelYardRatio {
-		core.PlayerX += 0.1
-		core.PlayerStance = core.ShiftStance(core.WalkRight1, core.WalkRight2)
+	if inpututil.IsKeyJustReleased(ebiten.KeyD) {
+		core.WalkingState = core.Standing
+		core.WalkingStanceFrom = core.PlayerStance
+		core.WalkingStanceTo = core.RestRight1
+		core.WalkingAnimationFrame = 0
+		core.WalkingAnimationFrames = core.WalkTransitionFrames
+		tmp := core.WalkRight1
+		core.WalkRight1 = core.WalkRight2
+		core.WalkRight2 = tmp
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyA) && core.PlayerX > 0.5*core.ScreenWidth/core.PixelYardRatio {
-		core.PlayerX -= 0.1
-		core.PlayerStance = core.ShiftStance(core.WalkLeft1, core.WalkLeft2)
+	if inpututil.IsKeyJustReleased(ebiten.KeyA) {
+		core.WalkingState = core.Standing
+		core.WalkingStanceFrom = core.PlayerStance
+		core.WalkingStanceTo = core.RestLeft1
+		core.WalkingAnimationFrame = 0
+		core.WalkingAnimationFrames = core.WalkTransitionFrames
+		tmp := core.WalkLeft1
+		core.WalkLeft1 = core.WalkLeft2
+		core.WalkLeft2 = tmp
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) && core.PlayerX < core.PlaceWidth-0.5*core.ScreenWidth/core.PixelYardRatio {
+		core.WalkingState = core.WalkingRight
+		core.WalkingStanceFrom = core.PlayerStance
+		core.WalkingStanceTo = core.WalkRight1
+		core.WalkingAnimationFrame = 0
+		core.WalkingAnimationFrames = core.WalkTransitionFrames
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) && core.PlayerX > 0.5*core.ScreenWidth/core.PixelYardRatio {
+		core.WalkingState = core.WalkingLeft
+		core.WalkingStanceFrom = core.PlayerStance
+		core.WalkingStanceTo = core.WalkLeft1
+		core.WalkingAnimationFrame = 0
+		core.WalkingAnimationFrames = core.WalkTransitionFrames
+	}
+	if core.WalkingAnimationFrame == core.WalkingAnimationFrames {
+		core.WalkingAnimationFrame = 0
+		core.WalkingStanceFrom = core.PlayerStance
+		if core.WalkingStanceTo == core.WalkLeft1 {
+			core.WalkingStanceTo = core.WalkLeft2
+			core.WalkingAnimationFrames = core.StepFrames
+		} else if core.WalkingStanceTo == core.WalkLeft2 {
+			core.WalkingStanceTo = core.WalkLeft1
+			core.WalkingAnimationFrames = core.StepFrames
+		} else if core.WalkingStanceTo == core.WalkRight1 {
+			core.WalkingStanceTo = core.WalkRight2
+			core.WalkingAnimationFrames = core.StepFrames
+		} else if core.WalkingStanceTo == core.WalkRight2 {
+			core.WalkingStanceTo = core.WalkRight1
+			core.WalkingAnimationFrames = core.StepFrames
+		} else if core.WalkingStanceTo == core.RestRight1 {
+			core.WalkingStanceTo = core.RestRight2
+			core.WalkingAnimationFrames = core.VibeFrames
+		} else if core.WalkingStanceTo == core.RestRight2 {
+			core.WalkingStanceTo = core.RestRight1
+			core.WalkingAnimationFrames = core.VibeFrames
+		} else if core.WalkingStanceTo == core.RestLeft1 {
+			core.WalkingStanceTo = core.RestLeft2
+			core.WalkingAnimationFrames = core.VibeFrames
+		} else if core.WalkingStanceTo == core.RestLeft2 {
+			core.WalkingStanceTo = core.RestLeft1
+			core.WalkingAnimationFrames = core.VibeFrames
+		} else if core.WalkingStanceTo == core.JumpRight1 || core.WalkingStanceTo == core.LeapRight {
+			core.PlayerYVelocity += 0.5
+			core.WalkingStanceTo = core.JumpRight2
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		} else if core.WalkingStanceTo == core.JumpRight2 {
+			core.WalkingStanceTo = core.JumpRight3
+			core.WalkingAnimationFrames = core.JumpTimeFrames
+		} else if core.WalkingStanceTo == core.JumpRight3 {
+			core.WalkingState = core.Standing
+			core.WalkingStanceTo = core.RestRight1
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		} else if core.WalkingStanceTo == core.JumpLeft1 || core.WalkingStanceTo == core.LeapLeft {
+			core.PlayerYVelocity += 0.5
+			core.WalkingStanceTo = core.JumpLeft2
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		} else if core.WalkingStanceTo == core.JumpLeft2 {
+			core.WalkingStanceTo = core.JumpLeft3
+			core.WalkingAnimationFrames = core.JumpTimeFrames
+		} else if core.WalkingStanceTo == core.JumpLeft3 {
+			core.WalkingState = core.Standing
+			core.WalkingStanceTo = core.RestLeft1
+			core.WalkingAnimationFrames = core.JumpTransitionFrames
+		}
+	}
+	core.PlayerStance = core.ShiftStance(core.WalkingStanceFrom, core.WalkingStanceTo, core.WalkingAnimationFrame, core.WalkingAnimationFrames)
+	if (core.WalkingState == core.WalkingRight || core.WalkingState == core.LeapingRight) && core.PlayerX < core.PlaceWidth-0.5*core.ScreenWidth/core.PixelYardRatio {
+		core.PlayerX += 0.09
+	}
+	if (core.WalkingState == core.WalkingLeft || core.WalkingState == core.LeapingLeft) && core.PlayerX > 0.5*core.ScreenWidth/core.PixelYardRatio {
+		core.PlayerX -= 0.09
 	}
 	core.PlayerXVelocity *= 0.8
 	core.PlayerYVelocity *= 0.8
@@ -71,7 +196,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	oak_counter := 0
-	draw_ground(screen)
+	screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
 	var chunk_start_y, chunk_start_x int = 0, 0
 	chunk_ends_y := int(math.Floor(core.PlaceHeight))
 	chunk_ends_x := int(math.Floor(core.PlaceWidth))
@@ -91,10 +216,24 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for j := chunk_start_x; j < chunk_ends_x; j++ {
 			chunklet := core.Grid[core.Vertex{X: j, Y: i}]
 			for k := 0; k < len(chunklet); k++ {
-				switch t := chunklet[k]; t {
-				case core.Oak:
+				if chunklet[k] == core.Oak {
 					oak_counter++
 					draw_oak(screen, float64(j)*core.PixelYardRatio, float64(i)*core.PixelYardRatio+core.OakHeight*core.PixelYardRatio)
+				}
+			}
+			if i == 0 {
+				grassblockdrawoptions := ebiten.DrawImageOptions{}
+				grassblockdrawoptions.GeoM.Reset()
+				wi, hi := core.GrassLayerImg.Size()
+				grassblockdrawoptions.GeoM.Scale(core.PixelYardRatio/float64(wi), core.PixelYardRatio/float64(hi))
+				grassblockdrawoptions.GeoM.Translate(float64(j)*core.PixelYardRatio-core.VP.X, core.GetPXY(0)+core.VP.Y)
+				screen.DrawImage(core.GrassLayerImg, &grassblockdrawoptions)
+				for k := 1; k < 6; k++ {
+					grassblockdrawoptions.GeoM.Reset()
+					wi, hi = core.DirtLayerImg.Size()
+					grassblockdrawoptions.GeoM.Scale(core.PixelYardRatio/float64(wi), core.PixelYardRatio/float64(hi))
+					grassblockdrawoptions.GeoM.Translate(float64(j)*core.PixelYardRatio-core.VP.X, core.GetPXY(0)+core.VP.Y+float64(k)*core.PixelYardRatio)
+					screen.DrawImage(core.DirtLayerImg, &grassblockdrawoptions)
 				}
 			}
 		}
@@ -121,13 +260,6 @@ func dbget(db *sql.DB, sqlstuff string) *sql.Rows {
 		log.Fatal(fmt.Sprintf("%q: %s\n", err, sqlstuff))
 	}
 	return rows
-}
-
-func draw_ground(screen *ebiten.Image) {
-	core.GroundDrawOptions.GeoM.Reset()
-	wi, hi := core.GroundImg.Size()
-	core.GroundDrawOptions.GeoM.Scale(core.PlaceWidth*core.PixelYardRatio/float64(wi), core.PlaceHeight*core.PixelYardRatio/float64(hi))
-	core.DrawImage(screen, core.GroundImg, core.GroundDrawOptions, -core.VP.X, core.GetPXY(core.GroundY)+core.VP.Y)
 }
 
 func draw_oak(screen *ebiten.Image, x float64, y float64) {

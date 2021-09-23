@@ -1,8 +1,6 @@
 package core
 
 import (
-	"math"
-
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -38,266 +36,6 @@ type Stance struct {
 
 const AnimationSpeed int = 10
 
-var (
-	RestRight1 Stance = Stance{
-		RightUpperArm: -math.Pi / 16,
-		LeftUpperArm:  math.Pi / 16,
-		Direction:     Right,
-		RightUpperLeg: 0,
-		LeftUpperLeg:  0,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: 0,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  0,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	RestRight2 Stance = Stance{
-		RightUpperArm: -math.Pi / 20,
-		LeftUpperArm:  math.Pi / 20,
-		Direction:     Right,
-		RightUpperLeg: 0,
-		LeftUpperLeg:  0,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: 0,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  0,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	RestLeft1 Stance = Stance{
-		RightUpperArm: -math.Pi / 16,
-		LeftUpperArm:  math.Pi / 16,
-		Direction:     Left,
-		RightUpperLeg: 0,
-		LeftUpperLeg:  0,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: 0,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  0,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	RestLeft2 Stance = Stance{
-		RightUpperArm: -math.Pi / 20,
-		LeftUpperArm:  math.Pi / 20,
-		Direction:     Left,
-		RightUpperLeg: 0,
-		LeftUpperLeg:  0,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: 0,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  0,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	WalkRight1 Stance = Stance{
-		RightUpperArm: math.Pi / 6,
-		LeftUpperArm:  -math.Pi / 6,
-		RightUpperLeg: -math.Pi / 6,
-		LeftUpperLeg:  math.Pi / 6,
-		Direction:     Right,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: -math.Pi / 20,
-		RightLowerLeg: math.Pi / 20,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 20,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	WalkRight2 Stance = Stance{
-		RightUpperArm: -math.Pi / 6,
-		LeftUpperArm:  math.Pi / 6,
-		RightUpperLeg: math.Pi / 6,
-		LeftUpperLeg:  -math.Pi / 6,
-		Direction:     Right,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: -math.Pi / 20,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 20,
-		LeftLowerLeg:  math.Pi / 20,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	WalkLeft1 Stance = Stance{
-		RightUpperArm: math.Pi / 6,
-		LeftUpperArm:  -math.Pi / 6,
-		RightUpperLeg: -math.Pi / 6,
-		LeftUpperLeg:  math.Pi / 6,
-		Direction:     Left,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: math.Pi / 20,
-		RightLowerLeg: -math.Pi / 20,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 20,
-		LeftLowerLeg:  0,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	WalkLeft2 Stance = Stance{
-		RightUpperArm: -math.Pi / 6,
-		LeftUpperArm:  math.Pi / 6,
-		RightUpperLeg: math.Pi / 6,
-		LeftUpperLeg:  -math.Pi / 6,
-		Direction:     Left,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: math.Pi / 20,
-		RightLowerLeg: 0,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 20,
-		LeftLowerLeg:  -math.Pi / 20,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpRight1 Stance = Stance{
-		RightUpperArm: math.Pi / 20,
-		LeftUpperArm:  math.Pi / 8,
-		RightUpperLeg: -math.Pi / 4,
-		LeftUpperLeg:  -math.Pi / 4,
-		Direction:     Right,
-		Head:          0,
-		Torso:         math.Pi / 10,
-		RightLowerArm: -math.Pi / 3,
-		RightLowerLeg: math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 3,
-		LeftLowerLeg:  math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpRight2 Stance = Stance{
-		RightUpperArm: -math.Pi / 10,
-		LeftUpperArm:  math.Pi / 5,
-		RightUpperLeg: -math.Pi / 10,
-		LeftUpperLeg:  -math.Pi / 15,
-		Direction:     Right,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: -math.Pi / 5,
-		RightLowerLeg: math.Pi / 5,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 5,
-		LeftLowerLeg:  math.Pi / 5,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpRight3 Stance = Stance{
-		RightUpperArm: math.Pi / 20,
-		LeftUpperArm:  math.Pi / 8,
-		RightUpperLeg: -math.Pi / 4,
-		LeftUpperLeg:  -math.Pi / 4,
-		Direction:     Right,
-		Head:          math.Pi / 20,
-		Torso:         math.Pi / 10,
-		RightLowerArm: -math.Pi / 3,
-		RightLowerLeg: math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 3,
-		LeftLowerLeg:  math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpLeft1 Stance = Stance{
-		RightUpperArm: math.Pi / 20,
-		LeftUpperArm:  math.Pi / 8,
-		RightUpperLeg: math.Pi / 4,
-		LeftUpperLeg:  math.Pi / 4,
-		Direction:     Left,
-		Head:          0,
-		Torso:         -math.Pi / 10,
-		RightLowerArm: math.Pi / 3,
-		RightLowerLeg: -math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 3,
-		LeftLowerLeg:  -math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpLeft2 Stance = Stance{
-		RightUpperArm: -math.Pi / 10,
-		LeftUpperArm:  math.Pi / 5,
-		RightUpperLeg: math.Pi / 10,
-		LeftUpperLeg:  math.Pi / 15,
-		Direction:     Left,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: math.Pi / 5,
-		RightLowerLeg: -math.Pi / 5,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 5,
-		LeftLowerLeg:  -math.Pi / 5,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	JumpLeft3 Stance = Stance{
-		RightUpperArm: math.Pi / 20,
-		LeftUpperArm:  math.Pi / 8,
-		RightUpperLeg: math.Pi / 4,
-		LeftUpperLeg:  math.Pi / 4,
-		Direction:     Left,
-		Head:          -math.Pi / 20,
-		Torso:         -math.Pi / 10,
-		RightLowerArm: math.Pi / 3,
-		RightLowerLeg: -math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 3,
-		LeftLowerLeg:  -math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	LeapRight Stance = Stance{
-		RightUpperArm: -math.Pi / 3,
-		LeftUpperArm:  math.Pi / 3,
-		LeftUpperLeg:  -math.Pi / 2,
-		RightUpperLeg: math.Pi / 4,
-		Direction:     Right,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: -math.Pi / 3,
-		LeftLowerLeg:  math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  -math.Pi / 3,
-		RightLowerLeg: math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	LeapLeft Stance = Stance{
-		RightUpperArm: -math.Pi / 3,
-		LeftUpperArm:  math.Pi / 3,
-		LeftUpperLeg:  math.Pi / 2,
-		RightUpperLeg: -math.Pi / 4,
-		Direction:     Left,
-		Head:          0,
-		Torso:         0,
-		RightLowerArm: math.Pi / 3,
-		LeftLowerLeg:  -math.Pi / 6,
-		RightFoot:     0,
-		LeftLowerArm:  math.Pi / 3,
-		RightLowerLeg: -math.Pi / 6,
-		LeftFoot:      0,
-		Weapon:        0,
-	}
-	PlayerStance Stance = RestRight1
-)
-
 const (
 	WalkTransitionFrames = 20
 	StepFrames           = 25
@@ -321,8 +59,10 @@ const (
 var WalkingState AnimationType = Standing
 var WalkingAnimationFrame int = 0
 var WalkingAnimationFrames int = VibeFrames
-var WalkingStanceTo Stance = RestRight1
-var WalkingStanceFrom Stance = RestRight1
+var WalkingStanceTo Stance
+var WalkingStanceFrom Stance
+var MovingRight bool = false
+var MovingLeft bool = false
 
 type Direction int
 
@@ -335,6 +75,7 @@ type Thing int
 
 const (
 	Oak Thing = iota + 1
+	OakLog
 )
 
 const (
@@ -360,6 +101,8 @@ const (
 	GroundY      float64 = 0
 	OakHeight    float64 = 5
 	OakWidth     float64 = 2
+	OakLogWidth  float64 = 0.3
+	OakLogHeight float64 = 0.3
 )
 
 const ScreenHeight float64 = 540
@@ -381,6 +124,7 @@ var (
 	GrassLayerImg         *ebiten.Image
 	DirtLayerImg          *ebiten.Image
 	OakImg                *ebiten.Image
+	OakLogImg             *ebiten.Image
 	BackgroundImg         *ebiten.Image
 	PlayerDrawOptions     ebiten.DrawImageOptions
 	BackgroundDrawOptions ebiten.DrawImageOptions

@@ -264,5 +264,3 @@ var (
 		Weapon:        0,
 	}
 )
-
-var PlayerStance core.Stance = RestRight1

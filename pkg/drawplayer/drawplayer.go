@@ -6,31 +6,30 @@ import (
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"rbrewer.com/core"
-	"rbrewer.com/stances"
 )
 
-func DrawPlayer(screen *ebiten.Image, x float64, y float64) {
-	if stances.PlayerStance.Direction == core.Right {
-		draw_player_right_arm(screen, x, y)
-		draw_player_right_leg(screen, x, y)
-		draw_player_torso(screen, x, y)
-		draw_player_head(screen, x, y)
-		draw_player_left_leg(screen, x, y)
-		draw_player_left_arm(screen, x, y)
-	} else if stances.PlayerStance.Direction == core.Left {
-		draw_player_left_arm(screen, x, y)
-		draw_player_left_leg(screen, x, y)
-		draw_player_torso(screen, x, y)
-		draw_player_head(screen, x, y)
-		draw_player_right_leg(screen, x, y)
-		draw_player_right_arm(screen, x, y)
+func DrawPlayer(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	if player.Stance.Direction == core.Right {
+		draw_player_right_arm(screen, player, x, y)
+		draw_player_right_leg(screen, player, x, y)
+		draw_player_torso(screen, player, x, y)
+		draw_player_head(screen, player, x, y)
+		draw_player_left_leg(screen, player, x, y)
+		draw_player_left_arm(screen, player, x, y)
+	} else if player.Stance.Direction == core.Left {
+		draw_player_left_arm(screen, player, x, y)
+		draw_player_left_leg(screen, player, x, y)
+		draw_player_torso(screen, player, x, y)
+		draw_player_head(screen, player, x, y)
+		draw_player_right_leg(screen, player, x, y)
+		draw_player_right_arm(screen, player, x, y)
 	}
 }
 
-func draw_player_head(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.Head+stances.PlayerStance.Torso, 2*math.Pi)
-	torso_theta := math.Mod(stances.PlayerStance.Torso, 2*math.Pi)
+func draw_player_head(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.Head+player.Stance.Torso, 2*math.Pi)
+	torso_theta := math.Mod(player.Stance.Torso, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
@@ -39,16 +38,16 @@ func draw_player_head(screen *ebiten.Image, x float64, y float64) {
 	}
 	neckx := x/core.PixelYardRatio - (core.HeadWidth-core.TorsoWidth)/2
 	necky := (y / core.PixelYardRatio)
-	difx, dify := torso_rotation_diff(core.HeadWidth / 2)
+	difx, dify := torso_rotation_diff(core.HeadWidth/2, player)
 	neckx += difx
 	necky += dify
 	headx := neckx - (core.HeadWidth * math.Cos(theta) / 2) + (core.HeadHeight * math.Sin(theta))
 	heady := necky + (core.HeadWidth * math.Sin(theta) / 2) + (core.HeadHeight * math.Cos(theta))
-	draw_player_piece(screen, 0, 0, 131, 104, core.PlayerDrawOptions, headx, heady, core.HeadWidth, core.HeadHeight, theta)
+	draw_player_piece(screen, 0, 0, 131, 104, player.DrawOptions, headx, heady, core.HeadWidth, core.HeadHeight, theta, player.Stance.Direction)
 }
 
-func torso_rotation_diff(r float64) (float64, float64) {
-	theta := math.Mod(stances.PlayerStance.Torso, 2*math.Pi)
+func torso_rotation_diff(r float64, player core.Player) (float64, float64) {
+	theta := math.Mod(player.Stance.Torso, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
@@ -70,30 +69,30 @@ func torso_rotation_diff(r float64) (float64, float64) {
 	return x, y
 }
 
-func draw_player_torso(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.Torso, 2*math.Pi)
+func draw_player_torso(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.Torso, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	draw_player_piece(screen, 165, 0, 300, 240, core.PlayerDrawOptions, x/core.PixelYardRatio, y/core.PixelYardRatio, core.TorsoWidth, core.TorsoHeight, theta)
+	draw_player_piece(screen, 165, 0, 300, 240, player.DrawOptions, x/core.PixelYardRatio, y/core.PixelYardRatio, core.TorsoWidth, core.TorsoHeight, theta, player.Stance.Direction)
 }
 
-func draw_player_left_arm(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.LeftUpperArm+stances.PlayerStance.Torso, 2*math.Pi)
+func draw_player_left_arm(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.LeftUpperArm+player.Stance.Torso, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	difx, dify := torso_rotation_diff(0)
+	difx, dify := torso_rotation_diff(0, player)
 	leftshoulderx := x/core.PixelYardRatio + difx
 	leftshouldery := y/core.PixelYardRatio + dify
 	leftupperarmx := leftshoulderx - (core.UpperArmWidth * math.Cos(theta) / 2)
 	leftupperarmy := leftshouldery + (core.UpperArmWidth * math.Sin(theta) / 2)
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, leftupperarmx, leftupperarmy, core.UpperArmWidth, core.UpperArmHeight, theta)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftupperarmx, leftupperarmy, core.UpperArmWidth, core.UpperArmHeight, theta, player.Stance.Direction)
 
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta2 := math.Mod(theta+stances.PlayerStance.LeftLowerArm, 2*math.Pi)
+	player.DrawOptions.GeoM.Reset()
+	theta2 := math.Mod(theta+player.Stance.LeftLowerArm, 2*math.Pi)
 	if theta2 < 0 {
 		theta2 += 2 * math.Pi
 	}
@@ -117,24 +116,24 @@ func draw_player_left_arm(screen *ebiten.Image, x float64, y float64) {
 		leftforearmx = leftelbowx - (core.LowerArmWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		leftforearmy = leftelbowy - (core.LowerArmWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, leftforearmx, leftforearmy, core.LowerArmWidth, core.LowerArmHeight, theta2)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftforearmx, leftforearmy, core.LowerArmWidth, core.LowerArmHeight, theta2, player.Stance.Direction)
 }
 
-func draw_player_right_arm(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.Torso+stances.PlayerStance.RightUpperArm, 2*math.Pi)
+func draw_player_right_arm(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.Torso+player.Stance.RightUpperArm, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	difx, dify := torso_rotation_diff(core.TorsoWidth)
+	difx, dify := torso_rotation_diff(core.TorsoWidth, player)
 	rightshoulderx := x/core.PixelYardRatio + difx
 	rightshouldery := y/core.PixelYardRatio + dify
 	rightupperarmx := rightshoulderx - (core.UpperArmWidth * math.Cos(theta) / 2)
 	rightupperarmy := rightshouldery + (core.UpperArmWidth * math.Sin(theta) / 2)
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, rightupperarmx, rightupperarmy, core.UpperArmWidth, core.UpperArmHeight, theta)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightupperarmx, rightupperarmy, core.UpperArmWidth, core.UpperArmHeight, theta, player.Stance.Direction)
 
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta2 := math.Mod(stances.PlayerStance.Torso+stances.PlayerStance.RightUpperArm+stances.PlayerStance.RightLowerArm, 2*math.Pi)
+	player.DrawOptions.GeoM.Reset()
+	theta2 := math.Mod(player.Stance.Torso+player.Stance.RightUpperArm+player.Stance.RightLowerArm, 2*math.Pi)
 	if theta2 < 0 {
 		theta2 += 2 * math.Pi
 	}
@@ -158,25 +157,25 @@ func draw_player_right_arm(screen *ebiten.Image, x float64, y float64) {
 		rightforearmx = rightelbowx - (core.LowerArmWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		rightforearmy = rightelbowy - (core.LowerArmWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, rightforearmx, rightforearmy, core.LowerArmWidth, core.LowerArmHeight, theta2)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightforearmx, rightforearmy, core.LowerArmWidth, core.LowerArmHeight, theta2, player.Stance.Direction)
 }
 
-func draw_player_left_leg(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.Torso+stances.PlayerStance.LeftUpperLeg, 2*math.Pi)
+func draw_player_left_leg(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.Torso+player.Stance.LeftUpperLeg, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	difx, dify := torso_rotation_diff(core.UpperLegWidth / 2)
-	dify2, difx2 := torso_rotation_diff(core.TorsoHeight)
+	difx, dify := torso_rotation_diff(core.UpperLegWidth/2, player)
+	dify2, difx2 := torso_rotation_diff(core.TorsoHeight, player)
 	pelvis_left_x := x/core.PixelYardRatio + difx + difx2
 	pelvis_left_y := y/core.PixelYardRatio + dify - dify2
 	leftupperlegx := pelvis_left_x - (core.UpperLegWidth * math.Cos(theta) / 2)
 	leftupperlegy := pelvis_left_y + (core.UpperLegWidth * math.Sin(theta) / 2)
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, leftupperlegx, leftupperlegy, core.UpperLegWidth, core.UpperLegHeight, theta)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftupperlegx, leftupperlegy, core.UpperLegWidth, core.UpperLegHeight, theta, player.Stance.Direction)
 
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta2 := math.Mod(theta+stances.PlayerStance.LeftLowerLeg, 2*math.Pi)
+	player.DrawOptions.GeoM.Reset()
+	theta2 := math.Mod(theta+player.Stance.LeftLowerLeg, 2*math.Pi)
 	if theta2 < 0 {
 		theta2 += 2 * math.Pi
 	}
@@ -200,25 +199,25 @@ func draw_player_left_leg(screen *ebiten.Image, x float64, y float64) {
 		leftlowerlegx = leftkneex - (core.LowerLegWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		leftlowerlegy = leftkneey - (core.LowerLegWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, leftlowerlegx, leftlowerlegy, core.LowerLegWidth, core.LowerLegHeight, theta2)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftlowerlegx, leftlowerlegy, core.LowerLegWidth, core.LowerLegHeight, theta2, player.Stance.Direction)
 }
 
-func draw_player_right_leg(screen *ebiten.Image, x float64, y float64) {
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta := math.Mod(stances.PlayerStance.Torso+stances.PlayerStance.RightUpperLeg, 2*math.Pi)
+func draw_player_right_leg(screen *ebiten.Image, player core.Player, x float64, y float64) {
+	player.DrawOptions.GeoM.Reset()
+	theta := math.Mod(player.Stance.Torso+player.Stance.RightUpperLeg, 2*math.Pi)
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	difx, dify := torso_rotation_diff(core.TorsoWidth - core.UpperLegWidth/2)
-	dify2, difx2 := torso_rotation_diff(core.TorsoHeight)
+	difx, dify := torso_rotation_diff(core.TorsoWidth-core.UpperLegWidth/2, player)
+	dify2, difx2 := torso_rotation_diff(core.TorsoHeight, player)
 	pelvis_right_x := x/core.PixelYardRatio + difx + difx2
 	pelvis_right_y := y/core.PixelYardRatio + dify - dify2
 	rightupperlegx := pelvis_right_x - (core.UpperLegWidth * math.Cos(theta) / 2)
 	rightupperlegy := pelvis_right_y + (core.UpperLegWidth * math.Sin(theta) / 2)
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, rightupperlegx, rightupperlegy, core.UpperLegWidth, core.UpperLegHeight, theta)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightupperlegx, rightupperlegy, core.UpperLegWidth, core.UpperLegHeight, theta, player.Stance.Direction)
 
-	core.PlayerDrawOptions.GeoM.Reset()
-	theta2 := math.Mod(theta+stances.PlayerStance.RightLowerLeg, 2*math.Pi)
+	player.DrawOptions.GeoM.Reset()
+	theta2 := math.Mod(theta+player.Stance.RightLowerLeg, 2*math.Pi)
 	if theta2 < 0 {
 		theta2 += 2 * math.Pi
 	}
@@ -242,17 +241,17 @@ func draw_player_right_leg(screen *ebiten.Image, x float64, y float64) {
 		rightlowerlegx = rightkneex - (core.LowerLegWidth/2)*math.Sin(theta2-3*math.Pi/2)
 		rightlowerlegy = rightkneey - (core.LowerLegWidth/2)*math.Cos(theta2-3*math.Pi/2)
 	}
-	draw_player_piece(screen, 131, 0, 165, 240, core.PlayerDrawOptions, rightlowerlegx, rightlowerlegy, core.LowerLegWidth, core.LowerLegHeight, theta2)
+	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightlowerlegx, rightlowerlegy, core.LowerLegWidth, core.LowerLegHeight, theta2, player.Stance.Direction)
 }
 
-func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, imgy2 int, drawoptions ebiten.DrawImageOptions, igx float64, igy float64, igw float64, igh float64, theta float64) {
+func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, imgy2 int, drawoptions ebiten.DrawImageOptions, igx float64, igy float64, igw float64, igh float64, theta float64, direction core.Direction) {
 	img := ebiten.NewImageFromImage(core.PlayerImg.SubImage(image.Rect(imgx1, imgy1, imgx2, imgy2)))
 	wi, hi := img.Size()
 	w := igw * core.PixelYardRatio
 	h := igh * core.PixelYardRatio
 	direction_scale := 1.0
 	direction_translation := 0.0
-	if stances.PlayerStance.Direction == core.Left {
+	if direction == core.Left {
 		direction_scale = -1
 		direction_translation = float64(wi)
 	}

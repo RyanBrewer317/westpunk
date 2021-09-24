@@ -56,13 +56,18 @@ const (
 	LeapingLeft
 )
 
-var WalkingState AnimationType = Standing
-var WalkingAnimationFrame int = 0
-var WalkingAnimationFrames int = VibeFrames
-var WalkingStanceTo Stance
-var WalkingStanceFrom Stance
-var MovingRight bool = false
-var MovingLeft bool = false
+var MainPlayer Player = Player{
+	WalkingState:           Standing,
+	WalkingAnimationFrame:  0,
+	WalkingAnimationFrames: VibeFrames,
+	MovingLeft:             false,
+	MovingRight:            false,
+	X:                      70,
+	Y:                      0,
+	Jump_dy:                0,
+	Gravity_dy:             0,
+	Height:                 1,
+}
 
 type Direction int
 
@@ -110,14 +115,7 @@ const ScreenWidth float64 = 810
 
 const PixelYardRatio float64 = 70
 
-var PlayerHeight float64 = 1
-
 var Grid map[Vertex][]Thing
-var PlayerYVelocity float64 = 0
-var PlayerXVelocity float64 = 0
-
-var PlayerX float64 = 70
-var PlayerY float64 = 6
 
 var (
 	PlayerImg             *ebiten.Image
@@ -126,7 +124,6 @@ var (
 	OakImg                *ebiten.Image
 	OakLogImg             *ebiten.Image
 	BackgroundImg         *ebiten.Image
-	PlayerDrawOptions     ebiten.DrawImageOptions
 	BackgroundDrawOptions ebiten.DrawImageOptions
 )
 
@@ -157,4 +154,21 @@ func ShiftStance(s1 Stance, s2 Stance, frame int, frames int) Stance {
 		Weapon:        c*(s2.Weapon-s1.Weapon) + s1.Weapon,
 		Direction:     s2.Direction,
 	}
+}
+
+type Player struct {
+	X                      float64
+	Y                      float64
+	Jump_dy                float64
+	Gravity_dy             float64
+	Stance                 Stance
+	WalkingStanceFrom      Stance
+	WalkingStanceTo        Stance
+	WalkingAnimationFrame  int
+	WalkingAnimationFrames int
+	MovingLeft             bool
+	MovingRight            bool
+	WalkingState           AnimationType
+	Height                 float64
+	DrawOptions            ebiten.DrawImageOptions
 }

@@ -57,23 +57,7 @@ func torso_rotation_diff(r float64, player core.Player) (float64, float64) {
 	if theta < 0 {
 		theta += 2 * math.Pi
 	}
-	x := 0.0
-	y := 0.0
-	// i want there to be a way to simplify this or export it to its own function or both
-	if theta < math.Pi/2 {
-		x += r * math.Cos(theta)
-		y -= r * math.Sin(theta)
-	} else if theta < math.Pi {
-		x -= r * math.Sin(theta-math.Pi/2)
-		y -= r * math.Cos(theta-math.Pi/2)
-	} else if theta < 3*math.Pi/2 {
-		x -= r * math.Cos(theta-math.Pi)
-		y += r * math.Sin(theta-math.Pi)
-	} else {
-		x += r * math.Sin(theta-3*math.Pi/2)
-		y += r * math.Cos(theta-3*math.Pi/2)
-	}
-	return x, y
+	return limb_joint_to_corner(theta, 0, 0, -2*r) // the math is identical to traveling from a point on a rotated rectangle to a corner on the same side
 }
 
 func draw_player_torso(screen *ebiten.Image, player core.Player, x float64, y float64) {
@@ -109,24 +93,7 @@ func draw_player_left_arm(screen *ebiten.Image, player core.Player, x float64, y
 	leftelbowx := leftshoulderx - (core.UPPER_ARM_HEIGHT * math.Sin(theta))
 	leftelbowy := leftshouldery - (core.UPPER_ARM_HEIGHT * math.Cos(theta))
 	// calculate the top left corner of the left lower arm based on the location of the elbow joint
-	var leftlowerarmx float64
-	var leftlowerarmy float64
-	if 0 <= theta2 && theta2 < math.Pi/2 {
-		leftlowerarmx = leftelbowx - (core.LOWER_ARM_WIDTH/2)*math.Cos(theta2)
-		leftlowerarmy = leftelbowy + (core.LOWER_ARM_WIDTH/2)*math.Sin(theta2)
-	}
-	if math.Pi/2 <= theta2 && theta2 < math.Pi {
-		leftlowerarmx = leftelbowx + (core.LOWER_ARM_WIDTH/2)*math.Cos(math.Pi-theta2)
-		leftlowerarmy = leftelbowy + (core.LOWER_ARM_WIDTH/2)*math.Sin(math.Pi-theta2)
-	}
-	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
-		leftlowerarmx = leftelbowx + (core.LOWER_ARM_WIDTH/2)*math.Sin(3*math.Pi/2-theta2)
-		leftlowerarmy = leftelbowy - (core.LOWER_ARM_WIDTH/2)*math.Cos(3*math.Pi/2-theta2)
-	}
-	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
-		leftlowerarmx = leftelbowx - (core.LOWER_ARM_WIDTH/2)*math.Sin(theta2-3*math.Pi/2)
-		leftlowerarmy = leftelbowy - (core.LOWER_ARM_WIDTH/2)*math.Cos(theta2-3*math.Pi/2)
-	}
+	leftlowerarmx, leftlowerarmy := limb_joint_to_corner(theta2, leftelbowx, leftelbowy, core.LOWER_ARM_WIDTH)
 	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftlowerarmx, leftlowerarmy, core.LOWER_ARM_WIDTH, core.LOWER_ARM_HEIGHT, theta2, player.Stance.Direction)
 }
 
@@ -156,24 +123,7 @@ func draw_player_right_arm(screen *ebiten.Image, player core.Player, x float64, 
 	rightelbowx := rightshoulderx - (core.UPPER_ARM_HEIGHT * math.Sin(theta))
 	rightelbowy := rightshouldery - (core.UPPER_ARM_HEIGHT * math.Cos(theta))
 	// calculate the top left corner of the right lower arm based on the right elbow joint
-	var rightforearmx float64
-	var rightforearmy float64
-	if 0 <= theta2 && theta2 < math.Pi/2 {
-		rightforearmx = rightelbowx - (core.UPPER_ARM_WIDTH/2)*math.Cos(theta2)
-		rightforearmy = rightelbowy + (core.UPPER_ARM_WIDTH/2)*math.Sin(theta2)
-	}
-	if math.Pi/2 <= theta2 && theta2 < math.Pi {
-		rightforearmx = rightelbowx + (core.LOWER_ARM_WIDTH/2)*math.Cos(math.Pi-theta2)
-		rightforearmy = rightelbowy + (core.LOWER_ARM_WIDTH/2)*math.Sin(math.Pi-theta2)
-	}
-	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
-		rightforearmx = rightelbowx + (core.LOWER_ARM_WIDTH/2)*math.Sin(3*math.Pi/2-theta2)
-		rightforearmy = rightelbowy - (core.LOWER_ARM_WIDTH/2)*math.Cos(3*math.Pi/2-theta2)
-	}
-	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
-		rightforearmx = rightelbowx - (core.LOWER_ARM_WIDTH/2)*math.Sin(theta2-3*math.Pi/2)
-		rightforearmy = rightelbowy - (core.LOWER_ARM_WIDTH/2)*math.Cos(theta2-3*math.Pi/2)
-	}
+	rightforearmx, rightforearmy := limb_joint_to_corner(theta2, rightelbowx, rightelbowy, core.UPPER_ARM_WIDTH)
 	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightforearmx, rightforearmy, core.LOWER_ARM_WIDTH, core.LOWER_ARM_HEIGHT, theta2, player.Stance.Direction)
 }
 
@@ -204,24 +154,7 @@ func draw_player_left_leg(screen *ebiten.Image, player core.Player, x float64, y
 	leftkneex := pelvis_left_x - (core.UPPER_LEG_HEIGHT * math.Sin(theta))
 	leftkneey := pelvis_left_y - (core.UPPER_LEG_HEIGHT * math.Cos(theta))
 	// calculate the top left corner of the left lower leg based on the left knee joint
-	var leftlowerlegx float64
-	var leftlowerlegy float64
-	if 0 <= theta2 && theta2 < math.Pi/2 {
-		leftlowerlegx = leftkneex - (core.LOWER_LEG_WIDTH/2)*math.Cos(theta2)
-		leftlowerlegy = leftkneey + (core.LOWER_LEG_WIDTH/2)*math.Sin(theta2)
-	}
-	if math.Pi/2 <= theta2 && theta2 < math.Pi {
-		leftlowerlegx = leftkneex + (core.LOWER_LEG_WIDTH/2)*math.Cos(math.Pi-theta2)
-		leftlowerlegy = leftkneey + (core.LOWER_LEG_WIDTH/2)*math.Sin(math.Pi-theta2)
-	}
-	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
-		leftlowerlegx = leftkneex + (core.LOWER_LEG_WIDTH/2)*math.Sin(3*math.Pi/2-theta2)
-		leftlowerlegy = leftkneey - (core.LOWER_LEG_WIDTH/2)*math.Cos(3*math.Pi/2-theta2)
-	}
-	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
-		leftlowerlegx = leftkneex - (core.LOWER_LEG_WIDTH/2)*math.Sin(theta2-3*math.Pi/2)
-		leftlowerlegy = leftkneey - (core.LOWER_LEG_WIDTH/2)*math.Cos(theta2-3*math.Pi/2)
-	}
+	leftlowerlegx, leftlowerlegy := limb_joint_to_corner(theta2, leftkneex, leftkneey, core.LOWER_LEG_WIDTH)
 	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, leftlowerlegx, leftlowerlegy, core.LOWER_LEG_WIDTH, core.LOWER_LEG_HEIGHT, theta2, player.Stance.Direction)
 }
 
@@ -252,24 +185,7 @@ func draw_player_right_leg(screen *ebiten.Image, player core.Player, x float64, 
 	rightkneex := pelvis_right_x - (core.UPPER_LEG_HEIGHT * math.Sin(theta))
 	rightkneey := pelvis_right_y - (core.UPPER_LEG_HEIGHT * math.Cos(theta))
 	// calculate the top left corner of the right lower leg based on the right knee joint
-	var rightlowerlegx float64
-	var rightlowerlegy float64
-	if 0 <= theta2 && theta2 < math.Pi/2 {
-		rightlowerlegx = rightkneex - (core.LOWER_LEG_WIDTH/2)*math.Cos(theta2)
-		rightlowerlegy = rightkneey + (core.LOWER_LEG_WIDTH/2)*math.Sin(theta2)
-	}
-	if math.Pi/2 <= theta2 && theta2 < math.Pi {
-		rightlowerlegx = rightkneex + (core.LOWER_LEG_WIDTH/2)*math.Cos(math.Pi-theta2)
-		rightlowerlegy = rightkneey + (core.LOWER_LEG_WIDTH/2)*math.Sin(math.Pi-theta2)
-	}
-	if math.Pi <= theta2 && theta2 < 3*math.Pi/2 {
-		rightlowerlegx = rightkneex + (core.LOWER_LEG_WIDTH/2)*math.Sin(3*math.Pi/2-theta2)
-		rightlowerlegy = rightkneey - (core.LOWER_LEG_WIDTH/2)*math.Cos(3*math.Pi/2-theta2)
-	}
-	if 3*math.Pi/2 <= theta2 && theta2 < 2*math.Pi {
-		rightlowerlegx = rightkneex - (core.LOWER_LEG_WIDTH/2)*math.Sin(theta2-3*math.Pi/2)
-		rightlowerlegy = rightkneey - (core.LOWER_LEG_WIDTH/2)*math.Cos(theta2-3*math.Pi/2)
-	}
+	rightlowerlegx, rightlowerlegy := limb_joint_to_corner(theta2, rightkneex, rightkneey, core.LOWER_LEG_WIDTH)
 	draw_player_piece(screen, 131, 0, 165, 240, player.DrawOptions, rightlowerlegx, rightlowerlegy, core.LOWER_LEG_WIDTH, core.LOWER_LEG_HEIGHT, theta2, player.Stance.Direction)
 }
 
@@ -293,4 +209,23 @@ func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, im
 	drawoptions.GeoM.Rotate(theta)
 	// translation happens in core.DrawImage
 	core.DrawImage(screen, img, drawoptions, igx*core.PIXEL_YARD_RATIO-core.VP.X, core.GetPXY(igy)+core.VP.Y)
+}
+
+func limb_joint_to_corner(theta float64, jx float64, jy float64, w float64) (float64, float64) {
+	var x float64
+	var y float64
+	if 0 <= theta && theta < math.Pi/2 {
+		x = jx - (w/2)*math.Cos(theta)
+		y = jy + (w/2)*math.Sin(theta)
+	} else if theta < math.Pi {
+		x = jx + (w/2)*math.Cos(math.Pi-theta)
+		y = jy + (w/2)*math.Sin(math.Pi-theta)
+	} else if theta < 3*math.Pi/2 {
+		x = jx + (w/2)*math.Sin(3*math.Pi/2-theta)
+		y = jy - (w/2)*math.Cos(3*math.Pi/2-theta)
+	} else if theta < 2*math.Pi {
+		x = jx - (w/2)*math.Sin(theta-3*math.Pi/2)
+		y = jy - (w/2)*math.Cos(theta-3*math.Pi/2)
+	}
+	return x, y
 }

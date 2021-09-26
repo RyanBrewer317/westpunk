@@ -9,3 +9,6 @@ You can run the game by running the westpunk/bin/westpunk executable.
 If this doesn't work on your system, and you have go installed, you go into the westpunk/src/westpunk directory and run `go install`, 
 then go to your Go bin and run the westpunk executable created.
 Note: this will likely not be in westpunk/bin!
+<br><br>An early example of character animation:<br>
+![an early example of character animation](https://user-images.githubusercontent.com/26353605/134797666-60afb719-dcc9-47b7-aad2-09f5f6a05dba.mov)
+

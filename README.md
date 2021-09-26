@@ -1,4 +1,5 @@
 # westpunk
+https://hoping.itch.io/westpunk<br>
 A two-dimensional sandbox survival game with fighting mechanics inspired by fighting games, especially Brawlhalla. 
 The gather/craft loop will be limited and slow, with a focus on realism. However, there will be ways to mechanically or magically automate parts of the process. 
 Characters are drawn as 2D rigged models, making it easy to change skins and add armor and clothing, as well as supporting the fighting-game aspect.

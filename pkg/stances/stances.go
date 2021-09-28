@@ -264,3 +264,29 @@ var (
 		Weapon:        0,
 	}
 )
+
+func CreateStanceContinuation(s1 core.Stance, s2 core.Stance, f int) {
+	var c core.StanceContinuation = core.StanceContinuation{
+		Start:        s1,
+		Continuation: s2,
+		Frames:       f,
+	}
+	core.StanceContinuations = append(core.StanceContinuations, c)
+}
+
+func CreateStanceContinuations() {
+	CreateStanceContinuation(RestLeft1, RestLeft2, core.VIBE_FRAMES)
+	CreateStanceContinuation(RestRight1, RestRight2, core.VIBE_FRAMES)
+	CreateStanceContinuation(RestLeft2, RestLeft1, core.VIBE_FRAMES)
+	CreateStanceContinuation(RestRight2, RestRight1, core.VIBE_FRAMES)
+	CreateStanceContinuation(JumpLeft1, JumpLeft2, core.JUMP_TRANSITION_FRAMES)
+	CreateStanceContinuation(JumpRight1, JumpRight2, core.JUMP_TRANSITION_FRAMES)
+	CreateStanceContinuation(JumpLeft2, JumpLeft3, core.JUMP_TIME_FRAMES)
+	CreateStanceContinuation(JumpRight2, JumpRight3, core.JUMP_TIME_FRAMES)
+	CreateStanceContinuation(LeapLeft, JumpLeft2, core.JUMP_TRANSITION_FRAMES)
+	CreateStanceContinuation(LeapRight, JumpRight2, core.JUMP_TRANSITION_FRAMES)
+	CreateStanceContinuation(WalkLeft1, WalkLeft2, core.STEP_FRAMES)
+	CreateStanceContinuation(WalkRight1, WalkRight2, core.STEP_FRAMES)
+	CreateStanceContinuation(WalkLeft2, WalkLeft1, core.STEP_FRAMES)
+	CreateStanceContinuation(WalkRight2, WalkRight1, core.STEP_FRAMES)
+}

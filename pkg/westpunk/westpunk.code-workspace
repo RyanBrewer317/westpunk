@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../stances"
+		},
+		{
+			"path": "../../bin"
+		},
+		{
+			"path": "../player"
+		}
+	],
+	"settings": {}
+}

@@ -1,4 +1,4 @@
-package drawplayer
+package player
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"rbrewer.com/core"
+	"rbrewer.com/stances"
 )
 
 func DrawPlayer(screen *ebiten.Image, player core.Player, x float64, y float64) {
@@ -231,4 +232,129 @@ func limb_joint_to_corner(theta float64, jx float64, jy float64, w float64) (flo
 		fmt.Println("ValueError: Unrecognized Theta:", theta)
 	}
 	return x, y
+}
+
+func SetPlayerHeight(p *core.Player) {
+	//calculate the players height (todo:  add math for arms in case the player is doing a handstand or crawling or something?)
+	// length of the right leg
+	right_upper_leg_angle := p.Stance.Torso + p.Stance.RightUpperLeg
+	right_upper_leg_height := core.UPPER_LEG_HEIGHT * math.Cos(right_upper_leg_angle)
+	right_lower_leg_angle := p.Stance.Torso + p.Stance.RightUpperLeg + p.Stance.RightLowerLeg
+	right_lower_leg_height := core.LOWER_LEG_HEIGHT * math.Cos(right_lower_leg_angle)
+	right_leg_height := right_upper_leg_height + right_lower_leg_height
+	// length of the left leg
+	left_upper_leg_angle := p.Stance.Torso + p.Stance.LeftUpperLeg
+	left_upper_leg_height := core.UPPER_LEG_HEIGHT * math.Cos(left_upper_leg_angle)
+	left_lower_leg_angle := p.Stance.Torso + p.Stance.LeftUpperLeg + p.Stance.LeftLowerLeg
+	left_lower_leg_height := core.LOWER_LEG_HEIGHT * math.Cos(left_lower_leg_angle)
+	left_leg_height := left_upper_leg_height + left_lower_leg_height
+	// length (height) of the whole body
+	p.Height = core.TORSO_HEIGHT*math.Cos(p.Stance.Torso) + math.Max(right_leg_height, left_leg_height)
+}
+
+func ApplyGravity(p *core.Player) {
+	// if the player is falling, accelerate that fall. Else, use the height we just calculated to calculate the player Y (which is the left shoulder from the viewers perspective)
+	if p.Y-p.Height > core.GROUND_Y {
+		p.Gravity_dy -= 0.03
+	} else {
+		p.Y = core.MainPlayer.Height
+	}
+}
+
+func ApplyAirResistance(p *core.Player) {
+	p.Jump_dy *= 0.8
+	p.Gravity_dy *= 0.8
+}
+
+func NaturalMotion(p *core.Player) {
+	p.Y += p.Gravity_dy
+	p.Y += p.Jump_dy
+}
+
+func StopMovingRight(p *core.Player) {
+	if p.MovingLeft { // if they're still holding down the key showing intent to walk left
+		core.ChangeWalkState(p, core.WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
+	} else { // if they have no intent of walking in either direciton
+		core.ChangeWalkState(p, core.STANDING, stances.RestRight1, core.WALK_TRANSITION_FRAMES)
+	}
+	p.MovingRight = false
+	// swap what walk1 and walk2 are referring to, so that spamming the walk key still makes the legs try to cross each time
+	tmp := stances.WalkRight1
+	stances.WalkRight1 = stances.WalkRight2
+	stances.WalkRight2 = tmp
+}
+
+func StopMovingLeft(p *core.Player) {
+	if p.MovingRight { // if they're still holding down the key showing intent to walk right
+		core.ChangeWalkState(p, core.WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
+	} else { // if they have no intent of walking in either direction
+		core.ChangeWalkState(p, core.STANDING, stances.RestLeft1, core.WALK_TRANSITION_FRAMES)
+	}
+	p.MovingLeft = false
+	// swap what walk1 and walk2 are referring to, so that spamming the walk key still makes the legs try to cross each time
+	tmp := stances.WalkLeft1
+	stances.WalkLeft1 = stances.WalkLeft2
+	stances.WalkLeft2 = tmp
+}
+
+func ContinueStance(p *core.Player) {
+	new_stance, frames := core.GetContinuation(p.WalkingStanceTo)
+	core.ChangeWalkState(p, p.WalkingState, new_stance, frames)
+}
+
+func StartJump(p *core.Player) {
+	// if the player is walking to the right, they're now leaping to the right
+	if p.Stance.Direction == core.RIGHT {
+		if p.WalkingState == core.WALKING_RIGHT {
+			core.ChangeWalkState(p, core.LEAPING_RIGHT, stances.LeapRight, core.JUMP_TRANSITION_FRAMES)
+		} else { // if they arent walking, the jump is straight up and down, facing right
+			core.ChangeWalkState(p, core.JUMPING_RIGHT, stances.JumpRight1, core.JUMP_TRANSITION_FRAMES)
+		}
+	} else { // if the player is walking to the left, theyre now leaping to the left
+		if p.WalkingState == core.WALKING_LEFT {
+			core.ChangeWalkState(p, core.LEAPING_LEFT, stances.LeapLeft, core.JUMP_TRANSITION_FRAMES)
+		} else { // if they arent walking, the jump is straight up and down, facing left
+			core.ChangeWalkState(p, core.JUMPING_LEFT, stances.JumpLeft1, core.JUMP_TRANSITION_FRAMES)
+		}
+	}
+}
+
+func ActualJump(p *core.Player) {
+	p.Jump_dy += 0.5
+}
+
+func EndJump(p *core.Player) {
+	// if you were transitioning to jump3, transition to either walking or standing based on if the movement keys are being held down
+	if p.MovingLeft {
+		core.ChangeWalkState(p, core.WALKING_LEFT, stances.WalkLeft1, core.JUMP_TRANSITION_FRAMES)
+	} else if p.MovingRight {
+		core.ChangeWalkState(p, core.WALKING_RIGHT, stances.WalkRight1, core.JUMP_TRANSITION_FRAMES)
+	} else if p.WalkingStanceTo.Direction == core.RIGHT {
+		core.ChangeWalkState(p, core.STANDING, stances.RestRight1, core.JUMP_TRANSITION_FRAMES)
+	} else if p.WalkingStanceTo.Direction == core.LEFT {
+		core.ChangeWalkState(p, core.STANDING, stances.RestLeft1, core.JUMP_TRANSITION_FRAMES)
+	}
+}
+
+func UpdateStance(p *core.Player) {
+	// shift the players stance one step towards what it's transitioning to
+	p.Stance = core.ShiftStance(p.WalkingStanceFrom, p.WalkingStanceTo, p.WalkingAnimationFrame, p.WalkingAnimationFrames)
+}
+
+func CanMoveRight(p *core.Player) bool {
+	right_border_x := core.PLACE_WIDTH - (0.5 * core.SCREEN_WIDTH / core.PIXEL_YARD_RATIO)
+	return p.X < right_border_x
+}
+
+func MoveRight(p *core.Player) {
+	p.X += 0.09
+}
+
+func CanMoveLeft(p *core.Player) bool {
+	left_border_x := 0.5 * core.SCREEN_WIDTH / core.PIXEL_YARD_RATIO
+	return p.X > left_border_x
+}
+
+func MoveLeft(p *core.Player) {
+	p.X -= 0.09
 }

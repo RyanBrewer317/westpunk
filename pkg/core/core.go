@@ -1,32 +1,28 @@
 package core
 
 import (
+	"math"
+
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
 // this is only for drawing the player, enabling multiple players to be rendered in a multi-player environment
 type Player struct {
 	// the player's x,y coordinate is at their left shoulder from the viewer's perspective
-	X float64
-	Y float64
+	X, Y float64
 
 	// forces are separated so they can be uniquely cancelled. Walking left and right is not a force
-	Jump_dy    float64
-	Gravity_dy float64
+	Jump_dy, Gravity_dy float64
 
 	// the player is constantly transitioning from one animation to another, for smoothness and liveliness
-	Stance            Stance
-	WalkingStanceFrom Stance
-	WalkingStanceTo   Stance
+	Stance, WalkingStanceFrom, WalkingStanceTo Stance
 
 	// these are for knowing how far you are from your last stance and the one youre transitioning to
-	WalkingAnimationFrame  int
-	WalkingAnimationFrames int
+	WalkingAnimationFrame, WalkingAnimationFrames int
 
 	// these are so that continuing to hold down a key after a complex movement still moves you how you intend to move
-	MovingLeft   bool
-	MovingRight  bool
-	WalkingState AnimationType
+	MovingLeft, MovingRight bool
+	WalkingState            AnimationType
 
 	Height      float64
 	DrawOptions ebiten.DrawImageOptions
@@ -37,30 +33,31 @@ type Coordinate struct {
 	X, Y int
 }
 
+type Chunk struct {
+	StartX, StartY, EndX, EndY int
+}
+
 // When the player moves, these variables are updated, then everything else in the world moves to keep the player in the center
 type Viewport struct {
-	X float64
-	Y float64
-	W float64
-	H float64
+	X, Y float64
 }
 
 // there's too much in a stance to not organize it this way
 type Stance struct {
-	Head          float64
-	Torso         float64
-	RightUpperArm float64
-	LeftUpperArm  float64
-	RightLowerArm float64
-	LeftLowerArm  float64
-	RightUpperLeg float64
-	LeftUpperLeg  float64
-	RightLowerLeg float64
-	LeftLowerLeg  float64
-	RightFoot     float64
-	LeftFoot      float64
-	Weapon        float64
-	Direction     Direction
+	Head,
+	Torso,
+	RightUpperArm,
+	LeftUpperArm,
+	RightLowerArm,
+	LeftLowerArm,
+	RightUpperLeg,
+	LeftUpperLeg,
+	RightLowerLeg,
+	LeftLowerLeg,
+	RightFoot,
+	LeftFoot,
+	Weapon float64
+	Direction Direction
 }
 
 type StanceContinuation struct {
@@ -164,6 +161,11 @@ func DrawImage(screen *ebiten.Image, img *ebiten.Image, drawoptions ebiten.DrawI
 	screen.DrawImage(img, &drawoptions)
 }
 
+func ResizeImage(img *ebiten.Image, drawoptions *ebiten.DrawImageOptions, w float64, h float64) {
+	width_int, height_int := img.Size()
+	drawoptions.GeoM.Scale(w/float64(width_int), h/float64(height_int))
+}
+
 // returns a stances that is the given distance in transition (frame/frames) from s1 to s2
 func ShiftStance(s1 Stance, s2 Stance, frame int, frames int) Stance {
 	c := float64(frame) / float64(frames)
@@ -191,7 +193,7 @@ func GetContinuation(s Stance) (Stance, int) {
 			return StanceContinuations[i].Continuation, StanceContinuations[i].Frames
 		}
 	}
-	return s, 60
+	return s, 0
 }
 
 func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, frames int) {
@@ -201,4 +203,22 @@ func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, fra
 	// reset the animation clock to transition into the new stance, starting from however the player is poisitioned now
 	player.WalkingStanceFrom = player.Stance
 	player.WalkingAnimationFrame = 0
+}
+
+func GetChunk(p Player) (chunk Chunk) {
+	chunk = Chunk{StartX: 0, StartY: 0, EndX: int(math.Floor(PLACE_HEIGHT)), EndY: int(math.Floor(PLACE_WIDTH))}
+	// if the player isnt too close to the edges, shift each of the sides towards the player to construct a box around the player that's just out of view of the human player
+	if math.Floor(p.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartY = int(math.Floor(p.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	}
+	if math.Floor(p.Y+1)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
+		chunk.EndY = int(math.Floor(p.Y+1) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	}
+	if math.Floor(p.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartX = int(math.Floor(p.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	}
+	if math.Floor(p.X+1)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
+		chunk.EndX = int(math.Floor(p.X+1) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	}
+	return
 }

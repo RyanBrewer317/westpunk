@@ -1,6 +1,7 @@
 package drawplayer
 
 import (
+	"fmt"
 	"image"
 	"math"
 
@@ -223,9 +224,11 @@ func limb_joint_to_corner(theta float64, jx float64, jy float64, w float64) (flo
 	} else if theta < 3*math.Pi/2 {
 		x = jx + (w/2)*math.Sin(3*math.Pi/2-theta)
 		y = jy - (w/2)*math.Cos(3*math.Pi/2-theta)
-	} else if theta < 2*math.Pi {
+	} else if theta <= 2*math.Pi {
 		x = jx - (w/2)*math.Sin(theta-3*math.Pi/2)
 		y = jy - (w/2)*math.Cos(theta-3*math.Pi/2)
+	} else {
+		fmt.Println("ValueError: Unrecognized Theta:", theta)
 	}
 	return x, y
 }

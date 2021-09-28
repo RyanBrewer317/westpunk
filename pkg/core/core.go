@@ -63,12 +63,16 @@ type Stance struct {
 	Direction     Direction
 }
 
+type StanceContinuation struct {
+	Start        Stance
+	Continuation Stance
+	Frames       int
+}
+
 // enums
 type AnimationType int
 type Direction int
 type Thing int
-
-var VP Viewport
 
 const (
 	WALK_TRANSITION_FRAMES int = 20 // how long to transition from standing to walking and back
@@ -138,6 +142,8 @@ var Grid map[Coordinate][]Thing
 
 //global variables for the ebiten library
 var (
+	StanceContinuations   []StanceContinuation
+	VP                    Viewport
 	PlayerImg             *ebiten.Image
 	GrassLayerImg         *ebiten.Image
 	DirtLayerImg          *ebiten.Image
@@ -177,4 +183,22 @@ func ShiftStance(s1 Stance, s2 Stance, frame int, frames int) Stance {
 		Weapon:        c*(s2.Weapon-s1.Weapon) + s1.Weapon,
 		Direction:     s2.Direction,
 	}
+}
+
+func GetContinuation(s Stance) (Stance, int) {
+	for i := 0; i < len(StanceContinuations); i++ {
+		if StanceContinuations[i].Start == s {
+			return StanceContinuations[i].Continuation, StanceContinuations[i].Frames
+		}
+	}
+	return s, 60
+}
+
+func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, frames int) {
+	player.WalkingState = state
+	player.WalkingStanceTo = new_stance
+	player.WalkingAnimationFrames = frames
+	// reset the animation clock to transition into the new stance, starting from however the player is poisitioned now
+	player.WalkingStanceFrom = player.Stance
+	player.WalkingAnimationFrame = 0
 }

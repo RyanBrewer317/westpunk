@@ -1,7 +1,6 @@
 package player
 
 import (
-	"fmt"
 	"image"
 	"math"
 
@@ -214,23 +213,8 @@ func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, im
 }
 
 func limb_joint_to_corner(theta float64, jx float64, jy float64, w float64) (float64, float64) {
-	var x float64
-	var y float64
-	if 0 <= theta && theta < math.Pi/2 {
-		x = jx - (w/2)*math.Cos(theta)
-		y = jy + (w/2)*math.Sin(theta)
-	} else if theta < math.Pi {
-		x = jx + (w/2)*math.Cos(math.Pi-theta)
-		y = jy + (w/2)*math.Sin(math.Pi-theta)
-	} else if theta < 3*math.Pi/2 {
-		x = jx + (w/2)*math.Sin(3*math.Pi/2-theta)
-		y = jy - (w/2)*math.Cos(3*math.Pi/2-theta)
-	} else if theta <= 2*math.Pi {
-		x = jx - (w/2)*math.Sin(theta-3*math.Pi/2)
-		y = jy - (w/2)*math.Cos(theta-3*math.Pi/2)
-	} else {
-		fmt.Println("ValueError: Unrecognized Theta:", theta)
-	}
+	x := jx - (w/2)*math.Cos(theta)
+	y := jy + (w/2)*math.Sin(theta)
 	return x, y
 }
 

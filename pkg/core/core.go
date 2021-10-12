@@ -222,3 +222,29 @@ func GetChunk(p Player) (chunk Chunk) {
 	}
 	return
 }
+
+func IK(first_bone_length float64, second_bone_length float64, base_x float64, base_y float64, target_x float64, target_y float64, concave_up bool) (new_base_joint_angle float64, new_connector_joint_angle float64) {
+	x_dif := target_x - base_x
+	y_dif := target_y - base_y
+	d := math.Sqrt(math.Pow(x_dif, 2) + math.Pow(y_dif, 2))
+	if d >= first_bone_length+second_bone_length {
+		new_base_joint_angle = -math.Asin(x_dif / d)
+		new_connector_joint_angle = 0.0
+	} else {
+		concavity_coefficient := 1.0
+		if concave_up {
+			concavity_coefficient = -1.0
+		}
+		angleTargetBaseConnector := concavity_coefficient * math.Acos((math.Pow(second_bone_length, 2)-math.Pow(first_bone_length, 2)-math.Pow(d, 2))/(-2*first_bone_length*d)) // law of cosines
+		angleYAxisPelvisFoot := math.Acos(x_dif / d)
+		angleTargetConnectorBase := math.Asin(d * math.Sin(angleTargetBaseConnector) / second_bone_length) // law of sines
+		new_base_joint_angle = math.Mod(-angleTargetBaseConnector+angleYAxisPelvisFoot-math.Pi/2, 2*math.Pi)
+		new_connector_joint_angle = math.Mod(angleTargetConnectorBase, 2*math.Pi)
+		calculated_target_x := first_bone_length*math.Cos(new_base_joint_angle) + second_bone_length*math.Cos(new_connector_joint_angle)
+		if math.Abs(calculated_target_x) > math.Abs(base_x-target_x) {
+			angle_differential := 2 * (new_connector_joint_angle - math.Pi/2)
+			new_connector_joint_angle = math.Mod(new_connector_joint_angle-angle_differential, 2*math.Pi)
+		}
+	}
+	return new_base_joint_angle, new_connector_joint_angle
+}

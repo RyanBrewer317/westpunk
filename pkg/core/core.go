@@ -66,6 +66,27 @@ type StanceContinuation struct {
 	Frames       int
 }
 
+type LineEquation struct {
+	Slope      float64
+	YIntercept float64
+}
+
+func (l *LineEquation) Y(x float64) float64 {
+	return l.Slope*x + l.YIntercept
+}
+
+type GroundPiecewise struct {
+	Pieces [5]LineEquation
+}
+
+func (gp *GroundPiecewise) Y(x float64) float64 {
+	return gp.Pieces[int(x)].Y(x)
+}
+
+func (gp *GroundPiecewise) SetPiece(l LineEquation, slot int) {
+	gp.Pieces[slot] = l
+}
+
 // enums
 type AnimationType int
 type Direction int
@@ -206,7 +227,7 @@ func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, fra
 }
 
 func GetChunk(p Player) (chunk Chunk) {
-	chunk = Chunk{StartX: 0, StartY: 0, EndX: int(math.Floor(PLACE_HEIGHT)), EndY: int(math.Floor(PLACE_WIDTH))}
+	chunk = Chunk{StartX: 0, StartY: 0, EndX: int(math.Floor(PLACE_WIDTH)), EndY: int(math.Floor(PLACE_HEIGHT))}
 	// if the player isnt too close to the edges, shift each of the sides towards the player to construct a box around the player that's just out of view of the human player
 	if math.Floor(p.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
 		chunk.StartY = int(math.Floor(p.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
@@ -247,4 +268,38 @@ func IK(first_bone_length float64, second_bone_length float64, base_x float64, b
 		}
 	}
 	return new_base_joint_angle, new_connector_joint_angle
+}
+
+func CurrentGround(player Player) GroundPiecewise {
+	out := GroundPiecewise{Pieces: [5]LineEquation{}}
+	groundchunk := Chunk{StartX: int(player.X) - 2, EndX: int(player.X) + 2, StartY: int(player.Y-player.Height) - 1, EndY: int(player.Y)}
+	for x := groundchunk.StartX; x < groundchunk.EndX; x++ {
+		found := false
+		for y := groundchunk.EndY; y > groundchunk.StartY; y-- {
+			chunklet := Grid[Coordinate{x, y}]
+			for i := 0; i < len(chunklet); i++ {
+				if chunklet[i] == OAK_LOG {
+					out.SetPiece(LineEquation{Slope: 0, YIntercept: OAK_LOG_HEIGHT}, x-groundchunk.StartX)
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if !found {
+			out.SetPiece(LineEquation{Slope: 0, YIntercept: 0}, x-groundchunk.StartX)
+		}
+	}
+	return out
+}
+
+func ArrayIncludes(array []interface{}, item interface{}) bool {
+	for i := 0; i < len(array); i++ {
+		if array[i] == item {
+			return true
+		}
+	}
+	return false
 }

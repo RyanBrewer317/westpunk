@@ -233,26 +233,7 @@ func SetPlayerHeight(p *core.Player) {
 	left_lower_leg_height := core.LOWER_LEG_HEIGHT * math.Cos(left_lower_leg_angle)
 	left_leg_height := left_upper_leg_height + left_lower_leg_height
 	// length (height) of the whole body
-	p.Height = core.TORSO_HEIGHT*math.Cos(p.Stance.Torso) + math.Max(right_leg_height, left_leg_height)
-}
-
-func ApplyGravity(p *core.Player) {
-	// if the player is falling, accelerate that fall. Else, use the height we just calculated to calculate the player Y (which is the left shoulder from the viewers perspective)
-	if p.Y-p.Height > core.GROUND_Y {
-		p.Gravity_dy -= 0.03
-	} else {
-		p.Y = core.MainPlayer.Height
-	}
-}
-
-func ApplyAirResistance(p *core.Player) {
-	p.Jump_dy *= 0.8
-	p.Gravity_dy *= 0.8
-}
-
-func NaturalMotion(p *core.Player) {
-	p.Y += p.Gravity_dy
-	p.Y += p.Jump_dy
+	p.Physics.Height = core.TORSO_HEIGHT*math.Cos(p.Stance.Torso) + math.Max(right_leg_height, left_leg_height)
 }
 
 func StopMovingRight(p *core.Player) {
@@ -304,7 +285,7 @@ func StartJump(p *core.Player) {
 }
 
 func ActualJump(p *core.Player) {
-	p.Jump_dy += 0.5
+	p.Physics.Forces[core.JUMP_FORCE] = &core.Vector2{X: 0, Y: 0.5}
 }
 
 func EndJump(p *core.Player) {
@@ -325,48 +306,30 @@ func UpdateStance(p *core.Player) {
 	p.Stance = core.ShiftStance(p.WalkingStanceFrom, p.WalkingStanceTo, p.WalkingAnimationFrame, p.WalkingAnimationFrames)
 }
 
-func CanMoveRight(p *core.Player) bool {
-	right_border_x := core.PLACE_WIDTH - (0.5 * core.SCREEN_WIDTH / core.PIXEL_YARD_RATIO)
-	return p.X < right_border_x
-}
-
-func MoveRight(p *core.Player) {
-	p.X += 0.09
-}
-
-func CanMoveLeft(p *core.Player) bool {
-	left_border_x := 0.5 * core.SCREEN_WIDTH / core.PIXEL_YARD_RATIO
-	return p.X > left_border_x
-}
-
-func MoveLeft(p *core.Player) {
-	p.X -= 0.09
-}
-
 func PositionRightFoot(player *core.Player, x float64, y float64) {
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH-core.UPPER_LEG_WIDTH/2, *player)
 	dify2, difx2 := torso_rotation_diff(core.TORSO_HEIGHT, *player)
-	pelvis_x := player.X + difx + difx2
-	pelvis_y := player.Y + dify - dify2
+	pelvis_x := player.Physics.Position.X + difx + difx2
+	pelvis_y := player.Physics.Position.Y + dify - dify2
 	player.Stance.RightUpperLeg, player.Stance.RightLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
 }
 
 func PositionLeftFoot(player *core.Player, x float64, y float64) {
 	dify, difx := torso_rotation_diff(core.TORSO_HEIGHT, *player)
-	pelvis_x := player.X + difx
-	pelvis_y := player.Y - dify
+	pelvis_x := player.Physics.Position.X + difx
+	pelvis_y := player.Physics.Position.Y - dify
 	player.Stance.LeftUpperLeg, player.Stance.LeftLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
 }
 
 func PositionRightHand(player *core.Player, x float64, y float64) {
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH, *player)
-	shoulder_x := player.X + difx
-	shoulder_y := player.Y + dify
+	shoulder_x := player.Physics.Position.X + difx
+	shoulder_y := player.Physics.Position.Y + dify
 	player.Stance.RightUpperArm, player.Stance.RightLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
 }
 
 func PositionLeftHand(player *core.Player, x float64, y float64) {
-	shoulder_x := player.X
-	shoulder_y := player.Y
+	shoulder_x := player.Physics.Position.X
+	shoulder_y := player.Physics.Position.Y
 	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
 }

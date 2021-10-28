@@ -14,6 +14,9 @@
 		},
 		{
 			"path": "../player"
+		},
+		{
+			"path": "../physics"
 		}
 	],
 	"settings": {}

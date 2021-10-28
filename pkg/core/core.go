@@ -9,10 +9,7 @@ import (
 // this is only for drawing the player, enabling multiple players to be rendered in a multi-player environment
 type Player struct {
 	// the player's x,y coordinate is at their left shoulder from the viewer's perspective
-	X, Y float64
-
-	// forces are separated so they can be uniquely cancelled. Walking left and right is not a force
-	Jump_dy, Gravity_dy float64
+	Physics PhysicsComponent
 
 	// the player is constantly transitioning from one animation to another, for smoothness and liveliness
 	Stance, WalkingStanceFrom, WalkingStanceTo Stance
@@ -24,7 +21,6 @@ type Player struct {
 	MovingLeft, MovingRight bool
 	WalkingState            AnimationType
 
-	Height      float64
 	DrawOptions ebiten.DrawImageOptions
 }
 
@@ -37,10 +33,8 @@ type Chunk struct {
 	StartX, StartY, EndX, EndY int
 }
 
-// When the player moves, these variables are updated, then everything else in the world moves to keep the player in the center
-type Viewport struct {
-	X, Y float64
-}
+// translation of the world to keep the main player centered
+type Viewport Vector2
 
 // there's too much in a stance to not organize it this way
 type Stance struct {
@@ -66,31 +60,70 @@ type StanceContinuation struct {
 	Frames       int
 }
 
-type LineEquation struct {
-	Slope      float64
-	YIntercept float64
+type Vector2 struct {
+	X, Y float64
 }
 
-func (l *LineEquation) Y(x float64) float64 {
-	return l.Slope*x + l.YIntercept
+func (v *Vector2) SetY(new_y float64) {
+	v.Y = new_y
 }
 
-type GroundPiecewise struct {
-	Pieces [5]LineEquation
+func (v *Vector2) SetX(new_x float64) {
+	v.X = new_x
 }
 
-func (gp *GroundPiecewise) Y(x float64) float64 {
-	return gp.Pieces[int(x)].Y(x)
+func (v *Vector2) Scale(coeff float64) {
+	v.X *= coeff
+	v.Y *= coeff
 }
 
-func (gp *GroundPiecewise) SetPiece(l LineEquation, slot int) {
-	gp.Pieces[slot] = l
+func (v *Vector2) Add(other Vector2) {
+	v.X += other.X
+	v.Y += other.Y
 }
+
+type PhysicsComponent struct {
+	Position    Vector2
+	Motion      Vector2
+	Velocity    Vector2
+	Forces      map[Force]*Vector2
+	Height      float64
+	Width       float64
+	Obstructive bool
+	Grounded    bool
+}
+
+type ThingInstance struct {
+	Type    Thing
+	Physics PhysicsComponent
+}
+
+// type LineEquation struct {
+// 	Slope      float64
+// 	YIntercept float64
+// }
+
+// func (l *LineEquation) Y(x float64) float64 {
+// 	return l.Slope*x + l.YIntercept
+// }
+
+// type GroundPiecewise struct {
+// 	Pieces [5]LineEquation
+// }
+
+// func (gp *GroundPiecewise) Y(x float64) float64 {
+// 	return gp.Pieces[int(x)].Y(x)
+// }
+
+// func (gp *GroundPiecewise) SetPiece(l LineEquation, slot int) {
+// 	gp.Pieces[slot] = l
+// }
 
 // enums
 type AnimationType int
 type Direction int
 type Thing int
+type Force int
 
 const (
 	WALK_TRANSITION_FRAMES int = 20 // how long to transition from standing to walking and back
@@ -112,6 +145,10 @@ const (
 	// thing type enums
 	OAK Thing = iota + 1
 	OAK_LOG
+	// force type enums
+	GRAVITY Force = iota + 1
+	JUMP_FORCE
+	KNOCKBACK
 	// player body proportion constants
 	TORSO_WIDTH      float64 = 0.25
 	TORSO_HEIGHT     float64 = 0.5
@@ -148,15 +185,20 @@ var MainPlayer Player = Player{
 	WalkingAnimationFrames: VIBE_FRAMES,
 	MovingLeft:             false,
 	MovingRight:            false,
-	X:                      70, // start in the middle-ish of the world
-	Y:                      0,
-	Jump_dy:                0,
-	Gravity_dy:             0,
-	Height:                 1,
+	Physics: PhysicsComponent{
+		Position: Vector2{
+			X: 70, // start in the middle-ish of the world
+			Y: 0,
+		},
+		Forces:   make(map[Force]*Vector2),
+		Height:   1,
+		Width:    PLAYER_WIDTH,
+		Grounded: false,
+	},
 }
 
 // the grid of static things, so that only the nearby ones are "loaded"
-var Grid map[Coordinate][]Thing
+var Grid map[Coordinate][]ThingInstance
 
 //global variables for the ebiten library
 var (
@@ -229,17 +271,17 @@ func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, fra
 func GetChunk(p Player) (chunk Chunk) {
 	chunk = Chunk{StartX: 0, StartY: 0, EndX: int(math.Floor(PLACE_WIDTH)), EndY: int(math.Floor(PLACE_HEIGHT))}
 	// if the player isnt too close to the edges, shift each of the sides towards the player to construct a box around the player that's just out of view of the human player
-	if math.Floor(p.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
-		chunk.StartY = int(math.Floor(p.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartY = int(math.Floor(p.Physics.Position.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Y+1)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
-		chunk.EndY = int(math.Floor(p.Y+1) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.Y+1)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
+		chunk.EndY = int(math.Floor(p.Physics.Position.Y+1) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
-		chunk.StartX = int(math.Floor(p.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartX = int(math.Floor(p.Physics.Position.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.X+1)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
-		chunk.EndX = int(math.Floor(p.X+1) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.X+1)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
+		chunk.EndX = int(math.Floor(p.Physics.Position.X+1) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
 	return
 }
@@ -270,30 +312,30 @@ func IK(first_bone_length float64, second_bone_length float64, base_x float64, b
 	return new_base_joint_angle, new_connector_joint_angle
 }
 
-func CurrentGround(player Player) GroundPiecewise {
-	out := GroundPiecewise{Pieces: [5]LineEquation{}}
-	groundchunk := Chunk{StartX: int(player.X) - 2, EndX: int(player.X) + 2, StartY: int(player.Y-player.Height) - 1, EndY: int(player.Y)}
-	for x := groundchunk.StartX; x < groundchunk.EndX; x++ {
-		found := false
-		for y := groundchunk.EndY; y > groundchunk.StartY; y-- {
-			chunklet := Grid[Coordinate{x, y}]
-			for i := 0; i < len(chunklet); i++ {
-				if chunklet[i] == OAK_LOG {
-					out.SetPiece(LineEquation{Slope: 0, YIntercept: OAK_LOG_HEIGHT}, x-groundchunk.StartX)
-					found = true
-					break
-				}
-			}
-			if found {
-				break
-			}
-		}
-		if !found {
-			out.SetPiece(LineEquation{Slope: 0, YIntercept: 0}, x-groundchunk.StartX)
-		}
-	}
-	return out
-}
+// func CurrentGround(player Player) GroundPiecewise {
+// 	out := GroundPiecewise{Pieces: [5]LineEquation{}}
+// 	groundchunk := Chunk{StartX: int(player.X) - 2, EndX: int(player.X) + 2, StartY: int(player.Y-player.Height) - 1, EndY: int(player.Y)}
+// 	for x := groundchunk.StartX; x < groundchunk.EndX; x++ {
+// 		found := false
+// 		for y := groundchunk.EndY; y > groundchunk.StartY; y-- {
+// 			chunklet := Grid[Coordinate{x, y}]
+// 			for i := 0; i < len(chunklet); i++ {
+// 				if chunklet[i] == OAK_LOG {
+// 					out.SetPiece(LineEquation{Slope: 0, YIntercept: OAK_LOG_HEIGHT}, x-groundchunk.StartX)
+// 					found = true
+// 					break
+// 				}
+// 			}
+// 			if found {
+// 				break
+// 			}
+// 		}
+// 		if !found {
+// 			out.SetPiece(LineEquation{Slope: 0, YIntercept: 0}, x-groundchunk.StartX)
+// 		}
+// 	}
+// 	return out
+// }
 
 func ArrayIncludes(array []interface{}, item interface{}) bool {
 	for i := 0; i < len(array); i++ {

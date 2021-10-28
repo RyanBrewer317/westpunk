@@ -1,0 +1,4 @@
+dist
+self.bpf.o
+vmlinux.h
+self

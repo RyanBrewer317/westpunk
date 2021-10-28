@@ -13,14 +13,17 @@ import (
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"rbrewer.com/core"
+	"rbrewer.com/physics"
 	"rbrewer.com/player"
 	"rbrewer.com/stances"
 )
 
 // go-sqlite3 docs https://github.com/mattn/go-sqlite3/blob/v1.14.8/_example/simple/simple.go
 // ebiten docs https://ebiten.org/tour/hello_world.html
+
+// var ChosenLog *core.ThingInstance
 
 func init() {
 	//this function is called automatically by ebiten
@@ -59,6 +62,9 @@ func init() {
 	}
 	core.BackgroundDrawOptions = ebiten.DrawImageOptions{}
 
+	core.MainPlayer.Physics.Forces[core.GRAVITY] = &core.Vector2{X: 0, Y: 0}
+	core.MainPlayer.Physics.Forces[core.JUMP_FORCE] = &core.Vector2{X: 0, Y: 0}
+
 	core.ResizeImage(core.BackgroundImg, &core.BackgroundDrawOptions, core.SCREEN_WIDTH, core.SCREEN_HEIGHT)
 }
 
@@ -72,10 +78,14 @@ func (g *Game) Update() error {
 	core.MainPlayer.WalkingAnimationFrame += 1
 
 	player.SetPlayerHeight(&core.MainPlayer)
+	physics.Move(&core.MainPlayer.Physics)
+	// physics.Move(&ChosenLog.Physics)
 
-	player.ApplyGravity(&core.MainPlayer)
+	// if physics.CollisionDetected(core.MainPlayer.Physics, ChosenLog.Physics) {
+	// 	ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 1}
+	// }
 
-	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.MainPlayer.Y-core.MainPlayer.Height == core.GROUND_Y { // if theres a jump intent and the player is on the ground
+	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.MainPlayer.Physics.Grounded { // if theres a jump intent and the player is on the ground
 		player.StartJump(&core.MainPlayer)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyD) { // intent to walk right has ended
@@ -84,11 +94,11 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyA) { // intent to walk left has ended
 		player.StopMovingLeft(&core.MainPlayer)
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyD) && core.MainPlayer.X < core.PLACE_WIDTH-0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk right and the right isnt obstructed
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) && core.MainPlayer.Physics.Position.X < core.PLACE_WIDTH-0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk right and the right isnt obstructed
 		core.ChangeWalkState(&core.MainPlayer, core.WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
 		core.MainPlayer.MovingRight = true
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) && core.MainPlayer.X > 0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk left and the left isnt obstructed
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) && core.MainPlayer.Physics.Position.X > 0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk left and the left isnt obstructed
 		core.ChangeWalkState(&core.MainPlayer, core.WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
 		core.MainPlayer.MovingLeft = true
 	}
@@ -103,21 +113,18 @@ func (g *Game) Update() error {
 	}
 	player.UpdateStance(&core.MainPlayer)
 
-	if (core.MainPlayer.WalkingState == core.WALKING_RIGHT || core.MainPlayer.WalkingState == core.LEAPING_RIGHT) && player.CanMoveRight(&core.MainPlayer) {
+	if (core.MainPlayer.WalkingState == core.WALKING_RIGHT || core.MainPlayer.WalkingState == core.LEAPING_RIGHT) && physics.CanMoveRight(&core.MainPlayer.Physics) {
 		// if theres intent to move right and the right isn't obstructed
-		player.MoveRight(&core.MainPlayer)
+		physics.MoveRight(&core.MainPlayer.Physics)
 	}
-	if (core.MainPlayer.WalkingState == core.WALKING_LEFT || core.MainPlayer.WalkingState == core.LEAPING_LEFT) && player.CanMoveLeft(&core.MainPlayer) {
+	if (core.MainPlayer.WalkingState == core.WALKING_LEFT || core.MainPlayer.WalkingState == core.LEAPING_LEFT) && physics.CanMoveLeft(&core.MainPlayer.Physics) {
 		// if theres intent to move left and the left isnt obstructed
-		player.MoveLeft(&core.MainPlayer)
+		physics.MoveLeft(&core.MainPlayer.Physics)
 	}
-
-	player.ApplyAirResistance(&core.MainPlayer)
-	player.NaturalMotion(&core.MainPlayer) // convert all the forces into actual motion
 
 	// shift the viewport
-	core.VP.X = core.MainPlayer.X*core.PIXEL_YARD_RATIO - (core.SCREEN_WIDTH / 2) + (core.PLAYER_WIDTH * core.PIXEL_YARD_RATIO / 2)
-	core.VP.Y = core.MainPlayer.Y*core.PIXEL_YARD_RATIO - (core.SCREEN_HEIGHT / 2) - (core.MainPlayer.Height * core.PIXEL_YARD_RATIO / 2)
+	core.VP.X = core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO - (core.SCREEN_WIDTH / 2) + (core.PLAYER_WIDTH * core.PIXEL_YARD_RATIO / 2)
+	core.VP.Y = core.MainPlayer.Physics.Position.Y*core.PIXEL_YARD_RATIO - (core.SCREEN_HEIGHT / 2) - (core.MainPlayer.Physics.Height * core.PIXEL_YARD_RATIO / 2)
 
 	return nil
 }
@@ -134,10 +141,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for j := chunk.StartX; j < chunk.EndX; j++ {
 			chunklet := core.Grid[core.Coordinate{X: j, Y: i}]
 			for k := 0; k < len(chunklet); k++ {
-				if chunklet[k] == core.OAK {
-					draw_oak(screen, float64(j)*core.PIXEL_YARD_RATIO, float64(i)*core.PIXEL_YARD_RATIO+core.OAK_HEIGHT*core.PIXEL_YARD_RATIO)
-				} else if chunklet[k] == core.OAK_LOG {
-					draw_oaklog(screen, float64(j)*core.PIXEL_YARD_RATIO, float64(i)*core.PIXEL_YARD_RATIO+core.OAK_LOG_HEIGHT*core.PIXEL_YARD_RATIO)
+				if chunklet[k].Type == core.OAK {
+					draw_oak(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
+				} else if chunklet[k].Type == core.OAK_LOG {
+					draw_oaklog(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO)
 				}
 			}
 			// if there's ground here, draw some ground
@@ -157,7 +164,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	player.DrawPlayer(screen, core.MainPlayer, core.MainPlayer.X*core.PIXEL_YARD_RATIO, core.MainPlayer.Y*core.PIXEL_YARD_RATIO)
+	player.DrawPlayer(screen, core.MainPlayer, core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO, core.MainPlayer.Physics.Position.Y*core.PIXEL_YARD_RATIO)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -202,14 +209,14 @@ func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
 
 func main() {
 	//open the database
-	db, err := sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	//fill out the grid
-	core.Grid = make(map[core.Coordinate][]core.Thing)
+	core.Grid = make(map[core.Coordinate][]core.ThingInstance)
 	rows := dbget(db, "select * from things WHERE placeID = \"place0\"")
 	defer rows.Close()
 	for rows.Next() {
@@ -221,17 +228,49 @@ func main() {
 		locsplit := strings.Split(location, " ")
 		x, _ := strconv.Atoi(locsplit[0])
 		y, _ := strconv.Atoi(locsplit[1])
+		offsetsplit := strings.Split(offset, " ")
+		offset_x, _ := strconv.ParseFloat(offsetsplit[0], 64)
+		offset_y, _ := strconv.ParseFloat(offsetsplit[1], 64)
 		switch t := thingtype; t {
 		case "oak":
-			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.OAK)
+			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.ThingInstance{
+				Type: core.OAK,
+				Physics: core.PhysicsComponent{
+					Position: core.Vector2{
+						X: float64(x) + offset_x,
+						Y: float64(y) + offset_y,
+					},
+					Height:      core.OAK_HEIGHT,
+					Width:       core.OAK_HEIGHT,
+					Forces:      make(map[core.Force]*core.Vector2),
+					Obstructive: false,
+					Grounded:    true,
+				},
+			})
 		case "oaklog":
-			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.OAK_LOG)
+			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.ThingInstance{
+				Type: core.OAK_LOG,
+				Physics: core.PhysicsComponent{
+					Position: core.Vector2{
+						X: float64(x) + offset_x,
+						Y: float64(y) + offset_y,
+					},
+					Height:      core.OAK_LOG_HEIGHT,
+					Width:       core.OAK_LOG_WIDTH,
+					Forces:      make(map[core.Force]*core.Vector2),
+					Obstructive: true,
+				},
+			})
+			// ChosenLog = &core.Grid[core.Coordinate{X: x, Y: y}][0]
+			// ChosenLog.Physics.Forces[core.GRAVITY] = &core.Vector2{X: 0, Y: 0}
+			// ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 0}
 		}
 	}
 
 	//construct and run the game
 	ebiten.SetWindowSize(int(core.SCREEN_WIDTH), int(core.SCREEN_HEIGHT))
 	ebiten.SetWindowTitle("Westpunk")
+	ebiten.SetFullscreen(true)
 	if err = ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

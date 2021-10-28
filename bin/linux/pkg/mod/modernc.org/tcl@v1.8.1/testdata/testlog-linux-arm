@@ -1,0 +1,1816 @@
+go version go1.15.2 linux/arm
+Linux pi32 5.4.0-1018-raspi #20-Ubuntu SMP Sun Sep 6 05:15:38 UTC 2020 armv7l armv7l armv7l GNU/Linux
+test binary compiled for linux/arm
+=== RUN   TestTclTest
+Tests running in interp:  /tmp/tcl-test-648465849/tcltest
+Tests located in:  /tmp/tcl-test-648465849
+Tests running in:  /tmp/tcl-test-648465849
+Temporary files stored in /tmp/tcl-test-648465849
+Test files run in separate interpreters
+Running tests that match:  *
+Only running test files that match:  *.test
+Tests began at Sat Sep 12 21:07:22 UTC 2020
+aaa_exit.test
+append.test
+appendComp.test
+apply.test
+assemble.test
+assocd.test
+async.test
+autoMkindex.test
+basic.test
+binary.test
+case.test
+chan.test
+chanio.test
+clock.test
+cmdAH.test
+cmdIL.test
+cmdInfo.test
+cmdMZ.test
+compExpr-old.test
+compExpr.test
+compile.test
+concat.test
+config.test
+coroutine.test
+dcall.test
+dict.test
+dstring.test
+encoding.test
+env.test
+error.test
+eval.test
+event.test
+exec.test
+execute.test
+expr-old.test
+expr.test
+fCmd.test
+fileName.test
+fileSystem.test
+fileSystemEncoding.test
+for-old.test
+for.test
+foreach.test
+format.test
+get.test
+history.test
+http.test
+
+
+==== http-3.3 http::geturl FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.3 FAILED
+
+
+
+==== http-3.4 http::geturl FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.4 FAILED
+
+
+
+==== http-3.5 http::geturl FAILED
+==== Contents of test case:
+
+    http::config -proxyfilter selfproxy
+    set token [http::geturl $url]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.5 FAILED
+
+
+
+==== http-3.6 http::geturl FAILED
+==== Contents of test case:
+
+    http::config -proxyfilter bogus
+    set token [http::geturl $url]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.6 FAILED
+
+
+
+==== http-3.7 http::geturl FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -headers {Pragma no-cache}]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -headers {Pragma no-cache}"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.7 FAILED
+
+
+
+==== http-3.8 http::geturl FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -query Name=Value&Foo=Bar -timeout 3000]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -query Name=Value&Foo=Bar -timeout 3000"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.8 FAILED
+
+
+
+==== http-3.9 http::geturl FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -validate 1]
+    http::code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -validate 1"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.9 FAILED
+
+
+
+==== http-3.10 http::geturl queryprogress FAILED
+==== Contents of test case:
+
+    proc postProgress {token x y} {
+	global postProgress
+	lappend postProgress $y
+    }
+    set postProgress {}
+    set t [http::geturl $posturl -keepalive 0 -query $query  -queryprogress postProgress -queryblocksize 16384]
+    http::wait $t
+    list [http::status $t] [string length $query] $postProgress [http::data $t]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $posturl -keepalive 0 -query $query  -queryprogress postProgress -queryblocksize 16384"
+    ("uplevel" body line 7)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "t": no such variable
+---- errorInfo(cleanup): can't read "t": no such variable
+    while executing
+"http::cleanup $t"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME t
+==== http-3.10 FAILED
+
+
+
+==== http-3.11 http::geturl querychannel with -command FAILED
+==== Contents of test case:
+
+    set fp [open $file]
+    proc asyncCB {token} {
+	global postResult
+	lappend postResult [http::data $token]
+    }
+    set postResult [list ]
+    set t [http::geturl $posturl -querychannel $fp]
+    http::wait $t
+    set testRes [list [http::status $t] [string length $query] [http::data $t]]
+    # Now do async
+    http::cleanup $t
+    close $fp
+    set fp [open $file]
+    set t [http::geturl $posturl -querychannel $fp -command asyncCB]
+    set postResult [list PostStart]
+    http::wait $t
+    close $fp
+    lappend testRes [http::status $t] $postResult
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $posturl -querychannel $fp"
+    ("uplevel" body line 8)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "t": no such variable
+---- errorInfo(cleanup): can't read "t": no such variable
+    while executing
+"http::cleanup $t"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME t
+==== http-3.11 FAILED
+
+
+
+==== http-3.14 http::geturl HTTP://user:pass@pi32:42987/a/b/c FAILED
+==== Contents of test case:
+
+    set token [http::geturl $fullurl -validate 1]
+    http::code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $fullurl -validate 1"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.14 FAILED
+
+
+
+==== http-3.25 http::meta FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -timeout 3000]
+    array set m [http::meta $token]
+    lsort [array names m]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -timeout 3000"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.25 FAILED
+
+
+
+==== http-3.26 http::meta FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -headers {X-Check 1} -timeout 3000]
+    array set m [http::meta $token]
+    lsort [array names m]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -headers {X-Check 1} -timeout 3000"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.26 FAILED
+
+
+
+==== http-3.27 http::geturl: -headers override -type FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url/headers -type "text/plain" -query dummy  -headers [list "Content-Type" "text/plain;charset=utf-8"]]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url/headers -type "text/plain" -query dummy  -headers [list "Content-Type" "text/plain;charset=utf-8"]"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.27 FAILED
+
+
+
+==== http-3.28 http::geturl: -headers override -type default FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url/headers -query dummy  -headers [list "Content-Type" "text/plain;charset=utf-8"]]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url/headers -query dummy  -headers [list "Content-Type" "text/plain;charset=utf-8"]"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+---- Test cleanup failed:
+can't read "token": no such variable
+---- errorInfo(cleanup): can't read "token": no such variable
+    while executing
+"http::cleanup $token"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $cleanup"
+---- errorCode(cleanup): TCL LOOKUP VARNAME token
+==== http-3.28 FAILED
+
+
+
+==== http-3.30 http::geturl query without path FAILED
+==== Contents of test case:
+
+    set token [http::geturl $authorityurl?var=val]
+    http::ncode $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $authorityurl?var=val"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-3.30 FAILED
+
+
+
+==== http-3.31 http::geturl fragment without path FAILED
+==== Contents of test case:
+
+    set token [http::geturl "$authorityurl#fragment42"]
+    http::ncode $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl "$authorityurl#fragment42""
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-3.31 FAILED
+
+
+
+==== http-3.32 http::geturl: -headers override -accept default FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url/headers -query dummy  -headers [list "Accept" "text/plain,application/tcl-test-value"]]
+    http::data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url/headers -query dummy  -headers [list "Accept" "text/plain,application/tcl-test-value"]"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-3.32 FAILED
+
+
+
+==== http-3.33 http::geturl application/xml is text FAILED
+==== Contents of test case:
+
+    set token [http::geturl "$xmlurl"]
+    scan [http::data $token] "<%\[^>]>%c<%\[^>]>"
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl "$xmlurl""
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-3.33 FAILED
+
+
+
+==== http-4.1 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -keepalive 0]
+    upvar #0 $token data
+    array set meta $data(meta)
+    expr {($data(totalsize) == $meta(Content-Length))}
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -keepalive 0"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.1 FAILED
+
+
+
+==== http-4.2 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url]
+    upvar #0 $token data
+    array set meta $data(meta)
+    string compare $data(type) [string trim $meta(Content-Type)]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.2 FAILED
+
+
+
+==== http-4.3 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url]
+    http::code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.3 FAILED
+
+
+
+==== http-4.4 http::Event FAILED
+==== Contents of test case:
+
+    set out [open $testfile w]
+    set token [http::geturl $url -channel $out]
+    close $out
+    set in [open $testfile]
+    set x [read $in]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -channel $out"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.4 FAILED
+
+
+
+==== http-4.5 http::Event FAILED
+==== Contents of test case:
+
+    set out [open $testfile w]
+    fconfigure $out -translation lf
+    set token [http::geturl $url -channel $out]
+    close $out
+    upvar #0 $token data
+    expr {$data(currentsize) == $data(totalsize)}
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -channel $out"
+    ("uplevel" body line 4)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.5 FAILED
+
+
+
+==== http-4.6 http::Event FAILED
+==== Contents of test case:
+
+    set out [open $testfile w]
+    set token [http::geturl $binurl -channel $out]
+    close $out
+    set in [open $testfile]
+    fconfigure $in -translation binary
+    read $in
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $binurl -channel $out"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.6 FAILED
+
+
+
+==== http-4.7 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -keepalive 0 -progress myProgress]
+    return $progress
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -keepalive 0 -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.7 FAILED
+
+
+
+==== http-4.8 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url]
+    http::status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.8 FAILED
+
+
+
+==== http-4.9 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -progress myProgress]
+    http::code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.9 FAILED
+
+
+
+==== http-4.10 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -progress myProgress]
+    http::size $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.10 FAILED
+
+
+
+==== http-4.11 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url -timeout 1 -keepalive 0 -command \#]
+    http::reset $token
+    http::status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -timeout 1 -keepalive 0 -command \#"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.11 FAILED
+
+
+
+==== http-4.12 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url/?timeout=10 -keepalive 0 -command \#]
+    http::reset $token
+    http::status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url/?timeout=10 -keepalive 0 -command \#"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.12 FAILED
+
+
+
+==== http-4.13 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $url?timeout=30 -keepalive 0 -timeout 10 -command \#]
+    http::wait $token
+    http::status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url?timeout=30 -keepalive 0 -timeout 10 -command \#"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.13 FAILED
+
+
+
+==== http-4.14 http::Event FAILED
+==== Contents of test case:
+
+    set token [http::geturl $badurl/?timeout=10 -timeout 10000 -command \#]
+    if {$token eq ""} {
+	error "bogus return from http::geturl"
+    }
+    http::wait $token
+    lindex [http::error $token] 0
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42988"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $badurl/?timeout=10 -timeout 10000 -command \#"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.14 FAILED
+
+
+
+==== http-4.16 Leak with Close vs Keepalive (bug [6ca52aec14] FAILED
+==== Contents of test case:
+
+    set before [chan names]
+    set token [http::geturl $url -headers {X-Connection keep-alive}]
+    http::cleanup $token
+    update
+    # Compute what channels have been unexpectedly leaked past cleanup
+    list-difference $before [chan names]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url -headers {X-Connection keep-alive}"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-4.16 FAILED
+
+
+
+==== http-6.1 http::ProxyRequired FAILED
+==== Contents of test case:
+
+    http::config -proxyhost ${::HOST} -proxyport $port
+    set token [http::geturl $url]
+    http::wait $token
+    upvar #0 $token data
+    set data(body)
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"::socket -async pi32 42987"
+    ("eval" body line 1)
+    invoked from within
+"eval $defcmd $sockopts $targetAddr"
+    invoked from within
+"http::geturl $url"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== http-6.1 FAILED
+
+http11.test
+httpPipeline.test
+httpold.test
+
+
+==== httpold-3.3 http_get FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.3 FAILED
+
+
+
+==== httpold-3.4 http_get FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.4 FAILED
+
+
+
+==== httpold-3.5 http_get FAILED
+==== Contents of test case:
+
+    http_config -proxyfilter selfproxy
+    set token [http_get $url]
+    http_config -proxyfilter httpProxyRequired
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $phost $pport"
+    (procedure "http_get" line 59)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.5 FAILED
+
+
+
+==== httpold-3.6 http_get FAILED
+==== Contents of test case:
+
+    http_config -proxyfilter bogus
+    set token [http_get $url]
+    http_config -proxyfilter httpProxyRequired
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 3)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.6 FAILED
+
+
+
+==== httpold-3.7 http_get FAILED
+==== Contents of test case:
+
+    set token [http_get $url -headers {Pragma no-cache}]
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -headers {Pragma no-cache}"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.7 FAILED
+
+
+
+==== httpold-3.8 http_get FAILED
+==== Contents of test case:
+
+    set token [http_get $url -query Name=Value&Foo=Bar]
+    http_data $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -query Name=Value&Foo=Bar"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.8 FAILED
+
+
+
+==== httpold-3.9 http_get FAILED
+==== Contents of test case:
+
+    set token [http_get $url -validate 1]
+    http_code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -validate 1"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-3.9 FAILED
+
+
+
+==== httpold-4.1 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    upvar #0 $token data
+    array set meta $data(meta)
+    expr ($data(totalsize) == $meta(Content-Length))
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.1 FAILED
+
+
+
+==== httpold-4.2 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    upvar #0 $token data
+    array set meta $data(meta)
+    string compare $data(type) [string trim $meta(Content-Type)]
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.2 FAILED
+
+
+
+==== httpold-4.3 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    http_code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.3 FAILED
+
+
+
+==== httpold-4.4 httpEvent FAILED
+==== Contents of test case:
+
+    set testfile [makeFile "" testfile]
+    set out [open $testfile w]
+    set token [http_get $url -channel $out]
+    close $out
+    set in [open $testfile]
+    set x [read $in]
+    close $in
+    removeFile $testfile
+    set x
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -channel $out"
+    ("uplevel" body line 4)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.4 FAILED
+
+
+
+==== httpold-4.5 httpEvent FAILED
+==== Contents of test case:
+
+    set testfile [makeFile "" testfile]
+    set out [open $testfile w]
+    set token [http_get $url -channel $out]
+    close $out
+    upvar #0 $token data
+    removeFile $testfile
+    expr $data(currentsize) == $data(totalsize)
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -channel $out"
+    ("uplevel" body line 4)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.5 FAILED
+
+
+
+==== httpold-4.6 httpEvent FAILED
+==== Contents of test case:
+
+    set testfile [makeFile "" testfile]
+    set out [open $testfile w]
+    set token [http_get $binurl -channel $out]
+    close $out
+    set in [open $testfile]
+    fconfigure $in -translation binary
+    set x [read $in]
+    close $in
+    removeFile $testfile
+    set x
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $binurl -channel $out"
+    ("uplevel" body line 4)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.6 FAILED
+
+
+
+==== httpold-4.7 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url -progress myProgress]
+    set progress
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.7 FAILED
+
+
+
+==== httpold-4.8 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url]
+    http_status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.8 FAILED
+
+
+
+==== httpold-4.9 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url -progress myProgress]
+    http_code $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.9 FAILED
+
+
+
+==== httpold-4.10 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url -progress myProgress]
+    http_size $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -progress myProgress"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.10 FAILED
+
+
+
+==== httpold-4.11 httpEvent FAILED
+==== Contents of test case:
+
+    set token [http_get $url -timeout 1 -command {#}]
+    http_reset $token
+    http_status $token
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -timeout 1 -command {#}"
+    ("uplevel" body line 2)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.11 FAILED
+
+
+
+==== httpold-4.12 httpEvent FAILED
+==== Contents of test case:
+
+    update
+    set x {}
+    after 500 {lappend x ok}
+    set token [http_get $url -timeout 1 -command {lappend x fail}]
+    vwait x
+    list [http_status $token] $x
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url -timeout 1 -command {lappend x fail}"
+    ("uplevel" body line 5)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-4.12 FAILED
+
+
+
+==== httpold-6.1 httpProxyRequired FAILED
+==== Contents of test case:
+
+    update
+    http_config -proxyhost ${::HOST} -proxyport $port
+    set token [http_get $url]
+    http_wait $token
+    http_config -proxyhost {} -proxyport {}
+    upvar #0 $token data
+    set data(body)
+
+---- Test generated error; Return code was: 1
+---- Return code should have been one of: 0 2
+---- errorInfo: couldn't open socket: gai error -1
+    while executing
+"socket $host $port"
+    (procedure "http_get" line 61)
+    invoked from within
+"http_get $url"
+    ("uplevel" body line 4)
+    invoked from within
+"uplevel 1 $script"
+---- errorCode: NONE
+==== httpold-6.1 FAILED
+
+if-old.test
+if.test
+incr-old.test
+incr.test
+indexObj.test
+info.test
+init.test
+interp.test
+io.test
+ioCmd.test
+ioTrans.test
+iogt.test
+join.test
+lindex.test
+link.test
+linsert.test
+list.test
+listObj.test
+llength.test
+lmap.test
+load.test
+lrange.test
+lrepeat.test
+lreplace.test
+lsearch.test
+lset.test
+lsetComp.test
+macOSXFCmd.test
+macOSXLoad.test
+main.test
+mathop.test
+misc.test
+msgcat.test
+namespace-old.test
+namespace.test
+notify.test
+nre.test
+obj.test
+oo.test
+ooNext2.test
+opt.test
+package.test
+parse.test
+parseExpr.test
+parseOld.test
+pid.test
+pkgMkIndex.test
+platform.test
+proc-old.test
+proc.test
+pwd.test
+reg.test
+regexp.test
+regexpComp.test
+registry.test
+rename.test
+resolver.test
+result.test
+safe.test
+scan.test
+security.test
+set-old.test
+set.test
+socket.test
+source.test
+split.test
+stack.test
+string.test
+stringComp.test
+stringObj.test
+subst.test
+switch.test
+tailcall.test
+tcltest.test
+thread.test
+timer.test
+tm.test
+trace.test
+unixFCmd.test
+unixFile.test
+unixForkEvent.test
+unixInit.test
+unixNotfy.test
+unknown.test
+unload.test
+uplevel.test
+upvar.test
+utf.test
+util.test
+var.test
+while-old.test
+while.test
+winConsole.test
+winDde.test
+winFCmd.test
+winFile.test
+winNotify.test
+winPipe.test
+winTime.test
+zlib.test
+
+Tests ended at Sat Sep 12 21:12:45 UTC 2020
+all.tcl:	Total	33499	Passed	30138	Skipped	3307	Failed	54
+Sourced 150 Test Files.
+Files with failing tests: http.test httpold.test
+Number of tests skipped for each constraint:
+	9	!ieeeFloatingPoint
+	3	asyncPipeChan
+	76	bigEndian
+	5	bug-3057639
+	49	dde
+	4	dontCopyLinks
+	64	emptyTest
+	5	fullutf
+	2	hasIsoLocale
+	1	knownBadTest
+	40	knownBug
+	100	localeRegexp
+	9	localhost_v6
+	15	longIs64bit
+	14	macosxFileAttr
+	82	memory
+	46	nonPortable
+	5	notNetworkFilesystem
+	1	notValgrind
+	9	nt
+	19	pkgaRequired
+	20	pkguaRequired
+	4	readonlyAttr
+	1996	serverNeeded
+	1	testCPUID
+	1	testexprparser && !ieeeFloatingPoint
+	1	testwinclock
+	21	testwordend
+	189	thread
+	3	threaded
+	2	time64bit
+	3	tip389
+	487	win
+	4	winVista
+	6	xdev
+--- PASS: TestTclTest (326.36s)
+=== RUN   TestEval
+--- PASS: TestEval (0.01s)
+=== RUN   TestCreateCommand
+--- PASS: TestCreateCommand (0.01s)
+=== RUN   ExampleInterp_Eval
+--- PASS: ExampleInterp_Eval (0.00s)
+=== RUN   ExampleInterp_NewCommand
+--- PASS: ExampleInterp_NewCommand (0.01s)
+PASS
+ok  	modernc.org/tcl	326.404s
+62:==== http-3.3 http::geturl FAILED
+82:---- Test cleanup failed:
+91:==== http-3.3 FAILED
+95:==== http-3.4 http::geturl FAILED
+115:---- Test cleanup failed:
+124:==== http-3.4 FAILED
+128:==== http-3.5 http::geturl FAILED
+149:---- Test cleanup failed:
+158:==== http-3.5 FAILED
+162:==== http-3.6 http::geturl FAILED
+183:---- Test cleanup failed:
+192:==== http-3.6 FAILED
+196:==== http-3.7 http::geturl FAILED
+216:---- Test cleanup failed:
+225:==== http-3.7 FAILED
+229:==== http-3.8 http::geturl FAILED
+249:---- Test cleanup failed:
+258:==== http-3.8 FAILED
+262:==== http-3.9 http::geturl FAILED
+282:---- Test cleanup failed:
+291:==== http-3.9 FAILED
+295:==== http-3.10 http::geturl queryprogress FAILED
+321:---- Test cleanup failed:
+330:==== http-3.10 FAILED
+334:==== http-3.11 http::geturl querychannel with -command FAILED
+370:---- Test cleanup failed:
+379:==== http-3.11 FAILED
+383:==== http-3.14 http::geturl HTTP://user:pass@pi32:42987/a/b/c FAILED
+403:---- Test cleanup failed:
+412:==== http-3.14 FAILED
+416:==== http-3.25 http::meta FAILED
+437:---- Test cleanup failed:
+446:==== http-3.25 FAILED
+450:==== http-3.26 http::meta FAILED
+471:---- Test cleanup failed:
+480:==== http-3.26 FAILED
+484:==== http-3.27 http::geturl: -headers override -type FAILED
+504:---- Test cleanup failed:
+513:==== http-3.27 FAILED
+517:==== http-3.28 http::geturl: -headers override -type default FAILED
+537:---- Test cleanup failed:
+546:==== http-3.28 FAILED
+550:==== http-3.30 http::geturl query without path FAILED
+570:==== http-3.30 FAILED
+574:==== http-3.31 http::geturl fragment without path FAILED
+594:==== http-3.31 FAILED
+598:==== http-3.32 http::geturl: -headers override -accept default FAILED
+618:==== http-3.32 FAILED
+622:==== http-3.33 http::geturl application/xml is text FAILED
+642:==== http-3.33 FAILED
+646:==== http-4.1 http::Event FAILED
+668:==== http-4.1 FAILED
+672:==== http-4.2 http::Event FAILED
+694:==== http-4.2 FAILED
+698:==== http-4.3 http::Event FAILED
+718:==== http-4.3 FAILED
+722:==== http-4.4 http::Event FAILED
+745:==== http-4.4 FAILED
+749:==== http-4.5 http::Event FAILED
+773:==== http-4.5 FAILED
+777:==== http-4.6 http::Event FAILED
+801:==== http-4.6 FAILED
+805:==== http-4.7 http::Event FAILED
+825:==== http-4.7 FAILED
+829:==== http-4.8 http::Event FAILED
+849:==== http-4.8 FAILED
+853:==== http-4.9 http::Event FAILED
+873:==== http-4.9 FAILED
+877:==== http-4.10 http::Event FAILED
+897:==== http-4.10 FAILED
+901:==== http-4.11 http::Event FAILED
+922:==== http-4.11 FAILED
+926:==== http-4.12 http::Event FAILED
+947:==== http-4.12 FAILED
+951:==== http-4.13 http::Event FAILED
+972:==== http-4.13 FAILED
+976:==== http-4.14 http::Event FAILED
+1000:==== http-4.14 FAILED
+1004:==== http-4.16 Leak with Close vs Keepalive (bug [6ca52aec14] FAILED
+1028:==== http-4.16 FAILED
+1032:==== http-6.1 http::ProxyRequired FAILED
+1055:==== http-6.1 FAILED
+1062:==== httpold-3.3 http_get FAILED
+1080:==== httpold-3.3 FAILED
+1084:==== httpold-3.4 http_get FAILED
+1102:==== httpold-3.4 FAILED
+1106:==== httpold-3.5 http_get FAILED
+1126:==== httpold-3.5 FAILED
+1130:==== httpold-3.6 http_get FAILED
+1150:==== httpold-3.6 FAILED
+1154:==== httpold-3.7 http_get FAILED
+1172:==== httpold-3.7 FAILED
+1176:==== httpold-3.8 http_get FAILED
+1194:==== httpold-3.8 FAILED
+1198:==== httpold-3.9 http_get FAILED
+1216:==== httpold-3.9 FAILED
+1220:==== httpold-4.1 httpEvent FAILED
+1240:==== httpold-4.1 FAILED
+1244:==== httpold-4.2 httpEvent FAILED
+1264:==== httpold-4.2 FAILED
+1268:==== httpold-4.3 httpEvent FAILED
+1286:==== httpold-4.3 FAILED
+1290:==== httpold-4.4 httpEvent FAILED
+1315:==== httpold-4.4 FAILED
+1319:==== httpold-4.5 httpEvent FAILED
+1342:==== httpold-4.5 FAILED
+1346:==== httpold-4.6 httpEvent FAILED
+1372:==== httpold-4.6 FAILED
+1376:==== httpold-4.7 httpEvent FAILED
+1394:==== httpold-4.7 FAILED
+1398:==== httpold-4.8 httpEvent FAILED
+1416:==== httpold-4.8 FAILED
+1420:==== httpold-4.9 httpEvent FAILED
+1438:==== httpold-4.9 FAILED
+1442:==== httpold-4.10 httpEvent FAILED
+1460:==== httpold-4.10 FAILED
+1464:==== httpold-4.11 httpEvent FAILED
+1483:==== httpold-4.11 FAILED
+1487:==== httpold-4.12 httpEvent FAILED
+1493:    set token [http_get $url -timeout 1 -command {lappend x fail}]
+1504:"http_get $url -timeout 1 -command {lappend x fail}"
+1509:==== httpold-4.12 FAILED
+1513:==== httpold-6.1 httpProxyRequired FAILED
+1536:==== httpold-6.1 FAILED
+1640:all.tcl:	Total	33499	Passed	30138	Skipped	3307	Failed	54
+1642:Files with failing tests: http.test httpold.test
+Sat Sep 12 21:12:45 UTC 2020

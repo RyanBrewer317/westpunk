@@ -1,0 +1,60 @@
+go version go1.15.6 darwin/amd64
+Darwin darwin64.local 19.6.0 Darwin Kernel Version 19.6.0: Thu Oct 29 22:56:45 PDT 2020; root:xnu-6153.141.2.2~1/RELEASE_X86_64 x86_64
+test binary compiled for darwin/amd64
+=== RUN   TestTclTest
+libc_darwin.go:1766:X__syscall3: TODOTODO 
+goroutine 1 [running, locked to thread]:
+runtime/debug.Stack(0x14ecb00, 0xc000100008, 0x145bb2d)
+	/usr/local/go/src/runtime/debug/stack.go:24 +0x9f
+modernc.org/libc.todo(0x0, 0x0, 0x0, 0x0, 0x0, 0x600000000, 0x95fb020)
+	/Users/jnml/src/modernc.org/libc/etc.go:91 +0x245
+modernc.org/libc.X__syscall3(...)
+	/Users/jnml/src/modernc.org/libc/libc_darwin.go:1766
+modernc.org/libc.Xreaddir(0xc000120060, 0x95fb020, 0x95fb020)
+	/Users/jnml/src/modernc.org/libc/musl_darwin_amd64.go:538 +0x7d
+modernc.org/tcl/lib.XTclpMatchInDirectory(0xc000120060, 0x9800020, 0x9945100, 0x991eef0, 0x9507428, 0x16e8b50, 0x0)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:406479 +0x60f
+modernc.org/tcl/lib.XTcl_FSMatchInDirectory(0xc000120060, 0x9800020, 0x9945100, 0x991eef0, 0x9507428, 0x16e8b50, 0xffffffff00000000)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:322142 +0x129
+modernc.org/tcl/lib.sDoGlob(0xc000120060, 0x9800020, 0x9945160, 0x147574f, 0x991eef0, 0x4, 0x9507428, 0x0, 0xc000000000)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:292594 +0x35c
+modernc.org/tcl/lib.XTclGlob(0xc000120060, 0x9800020, 0x9507428, 0x991eef0, 0x5, 0x0, 0x0)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:292115 +0xf45
+modernc.org/tcl/lib.XTcl_GlobObjCmd(0xc000120060, 0x0, 0x9800020, 0xc000000002, 0x9a01438, 0xc000000000)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:291619 +0xca5
+modernc.org/tcl/lib.sDispatch(0xc000120060, 0x9944b38, 0x9800020, 0x0, 0xc000000000)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:113462 +0x76
+modernc.org/tcl/lib.XTclNRRunCallbacks(0xc000120060, 0x9800020, 0x300000000, 0x0, 0x200010)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:113487 +0xd2
+modernc.org/tcl/lib.XTcl_EvalObjv(0xc000120060, 0x9800020, 0x4, 0x9a00300, 0x200010, 0xf)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:113046 +0x99
+modernc.org/tcl/lib.XTclEvalEx(0xc000120060, 0x9800020, 0x95e3020, 0x416, 0x1, 0x0, 0x95e3020, 0x0)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:114675 +0xc95
+modernc.org/tcl/lib.XTcl_FSEvalFileEx(0xc000120060, 0x9800020, 0x9910d40, 0x0, 0x0)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:323039 +0x718
+modernc.org/tcl/lib.XTcl_MainEx(0xc000120060, 0xffffffff, 0x9200050, 0x1486468, 0x9800020)
+	/Users/jnml/src/modernc.org/tcl/lib/tcl_darwin_amd64.go:331955 +0x81d
+main.main1(0xc000120060, 0xc000000006, 0x9200020, 0x1a)
+	/Users/jnml/src/modernc.org/tcl/internal/tcltest/tcltest_darwin_amd64.go:21781 +0x65
+modernc.org/libc.Start(0x1486818)
+	/Users/jnml/src/modernc.org/libc/libc.go:80 +0x1b8
+main.main()
+	/Users/jnml/src/modernc.org/tcl/internal/tcltest/tcltest_darwin_amd64.go:18 +0x2d
+
+    all_test.go:189: exit status 1
+--- FAIL: TestTclTest (0.72s)
+=== RUN   TestEval
+--- PASS: TestEval (0.00s)
+=== RUN   TestCreateCommand
+--- PASS: TestCreateCommand (0.00s)
+=== RUN   ExampleInterp_Eval
+--- PASS: ExampleInterp_Eval (0.00s)
+=== RUN   ExampleInterp_NewCommand
+--- PASS: ExampleInterp_NewCommand (0.00s)
+FAIL
+exit status 1
+FAIL	modernc.org/tcl	0.741s
+45:--- FAIL: TestTclTest (0.72s)
+54:FAIL
+56:FAIL	modernc.org/tcl	0.741s
+Sat Dec 26 17:48:58 CET 2020

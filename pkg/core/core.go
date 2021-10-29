@@ -54,6 +54,7 @@ type Stance struct {
 	Direction Direction
 }
 
+// how the stance after a given stance is stored. This could probably be improved
 type StanceContinuation struct {
 	Start        Stance
 	Continuation Stance
@@ -62,14 +63,6 @@ type StanceContinuation struct {
 
 type Vector2 struct {
 	X, Y float64
-}
-
-func (v *Vector2) SetY(new_y float64) {
-	v.Y = new_y
-}
-
-func (v *Vector2) SetX(new_x float64) {
-	v.X = new_x
 }
 
 func (v *Vector2) Scale(coeff float64) {
@@ -82,6 +75,7 @@ func (v *Vector2) Add(other Vector2) {
 	v.Y += other.Y
 }
 
+// the block of information that the physics engine operates on and that the graphics system uses for positioning. Later an AI system will probably operate on it too
 type PhysicsComponent struct {
 	Position    Vector2
 	Motion      Vector2
@@ -98,6 +92,7 @@ type ThingInstance struct {
 	Physics PhysicsComponent
 }
 
+// the commented out code below is theoretically for representing uneven terrain for the iceboxed IK walking animation system
 // type LineEquation struct {
 // 	Slope      float64
 // 	YIntercept float64
@@ -176,6 +171,8 @@ const (
 	SCREEN_WIDTH   float64 = 810 // in pixels
 	// the conversion factor from units to pixels
 	PIXEL_YARD_RATIO float64 = 70
+	// speeds
+	PLAYER_WALK_SPEED float64 = 0.09
 )
 
 //the player that the viewport centers around and the inputs control
@@ -190,7 +187,10 @@ var MainPlayer Player = Player{
 			X: 70, // start in the middle-ish of the world
 			Y: 0,
 		},
-		Forces:   make(map[Force]*Vector2),
+		Forces: map[Force]*Vector2{
+			GRAVITY:    {X: 0, Y: 0},
+			JUMP_FORCE: {X: 0, Y: 0},
+		},
 		Height:   1,
 		Width:    PLAYER_WIDTH,
 		Grounded: false,
@@ -251,6 +251,7 @@ func ShiftStance(s1 Stance, s2 Stance, frame int, frames int) Stance {
 }
 
 func GetContinuation(s Stance) (Stance, int) {
+	// yeah this is sorta bad lol
 	for i := 0; i < len(StanceContinuations); i++ {
 		if StanceContinuations[i].Start == s {
 			return StanceContinuations[i].Continuation, StanceContinuations[i].Frames
@@ -337,11 +338,11 @@ func IK(first_bone_length float64, second_bone_length float64, base_x float64, b
 // 	return out
 // }
 
-func ArrayIncludes(array []interface{}, item interface{}) bool {
-	for i := 0; i < len(array); i++ {
-		if array[i] == item {
-			return true
-		}
-	}
-	return false
-}
+// func ArrayIncludes(array []interface{}, item interface{}) bool {
+// 	for i := 0; i < len(array); i++ {
+// 		if array[i] == item {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }

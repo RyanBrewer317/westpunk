@@ -213,13 +213,14 @@ func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, im
 }
 
 func limb_joint_to_corner(theta float64, jx float64, jy float64, w float64) (float64, float64) {
+	// calculate the point that's distance w/2 away from (jx, jy) in the direction theta
 	x := jx - (w/2)*math.Cos(theta)
 	y := jy + (w/2)*math.Sin(theta)
 	return x, y
 }
 
 func SetPlayerHeight(p *core.Player) {
-	//calculate the players height (todo:  add math for arms in case the player is doing a handstand or crawling or something?)
+	//calculate the players height (todo: add math for arms in case the player is doing a handstand or crawling or something?)
 	// length of the right leg
 	right_upper_leg_angle := p.Stance.Torso + p.Stance.RightUpperLeg
 	right_upper_leg_height := core.UPPER_LEG_HEIGHT * math.Cos(right_upper_leg_angle)
@@ -263,6 +264,7 @@ func StopMovingLeft(p *core.Player) {
 }
 
 func ContinueStance(p *core.Player) {
+	// shift from the current stance to the next
 	new_stance, frames := core.GetContinuation(p.WalkingStanceTo)
 	core.ChangeWalkState(p, p.WalkingState, new_stance, frames)
 }
@@ -307,6 +309,7 @@ func UpdateStance(p *core.Player) {
 }
 
 func PositionRightFoot(player *core.Player, x float64, y float64) {
+	// use inverse kinematics to position the player's right foot at (x, y)
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH-core.UPPER_LEG_WIDTH/2, *player)
 	dify2, difx2 := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx + difx2
@@ -315,6 +318,7 @@ func PositionRightFoot(player *core.Player, x float64, y float64) {
 }
 
 func PositionLeftFoot(player *core.Player, x float64, y float64) {
+	// use inverse kinematics to position the player's left foot at (x, y)
 	dify, difx := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx
 	pelvis_y := player.Physics.Position.Y - dify
@@ -322,6 +326,7 @@ func PositionLeftFoot(player *core.Player, x float64, y float64) {
 }
 
 func PositionRightHand(player *core.Player, x float64, y float64) {
+	// use inverse kinematics to position the player's right hand at (x, y)
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH, *player)
 	shoulder_x := player.Physics.Position.X + difx
 	shoulder_y := player.Physics.Position.Y + dify
@@ -329,6 +334,7 @@ func PositionRightHand(player *core.Player, x float64, y float64) {
 }
 
 func PositionLeftHand(player *core.Player, x float64, y float64) {
+	// use inverse kinematics to position the player's left hand at (x, y)
 	shoulder_x := player.Physics.Position.X
 	shoulder_y := player.Physics.Position.Y
 	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)

@@ -6,7 +6,6 @@ import (
 	_ "image/png"
 	"log"
 
-	// "math/rand"
 	"strconv"
 	"strings"
 
@@ -20,20 +19,17 @@ import (
 	"rbrewer.com/stances"
 )
 
-// go-sqlite3 docs https://github.com/mattn/go-sqlite3/blob/v1.14.8/_example/simple/simple.go
-// ebiten docs https://ebiten.org/tour/hello_world.html
-
-// var ChosenLog *core.ThingInstance
+// var ChosenLog *core.ThingInstance // physics debugging
 
 func init() {
-	//this function is called automatically by ebiten
+	// this function is called automatically by ebiten
 
-	//these stances are created outside of core, so this declaration has to happen here in main
+	// these stances are created outside of core, so this declaration has to happen here in main
 	core.MainPlayer.WalkingStanceTo = stances.RestRight2
 	core.MainPlayer.WalkingStanceFrom = stances.RestRight1
 	stances.CreateStanceContinuations()
 
-	//load the game assets
+	// load the game assets
 	var err error
 	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("spritesheet.png")
 	if err != nil {
@@ -62,9 +58,7 @@ func init() {
 	}
 	core.BackgroundDrawOptions = ebiten.DrawImageOptions{}
 
-	core.MainPlayer.Physics.Forces[core.GRAVITY] = &core.Vector2{X: 0, Y: 0}
-	core.MainPlayer.Physics.Forces[core.JUMP_FORCE] = &core.Vector2{X: 0, Y: 0}
-
+	// create the background image TODO: parallax
 	core.ResizeImage(core.BackgroundImg, &core.BackgroundDrawOptions, core.SCREEN_WIDTH, core.SCREEN_HEIGHT)
 }
 
@@ -74,17 +68,21 @@ type Game struct{}
 func (g *Game) Update() error {
 	// this function is called automatically every game tick (not every animation frame) by ebiten
 
-	//update the main player's animation clock to move it one step closer to the stance it's approaching
+	// update the main player's animation clock to move it one step closer to the stance it's approaching
 	core.MainPlayer.WalkingAnimationFrame += 1
 
+	// calculate the player's height based on the angles of the body parts
 	player.SetPlayerHeight(&core.MainPlayer)
-	physics.Move(&core.MainPlayer.Physics)
-	// physics.Move(&ChosenLog.Physics)
 
-	// if physics.CollisionDetected(core.MainPlayer.Physics, ChosenLog.Physics) {
+	// apply physics to stuff
+	physics.Move(&core.MainPlayer.Physics)
+	// physics.Move(&ChosenLog.Physics) // physics debugging
+
+	// if physics.CollisionDetected(core.MainPlayer.Physics, ChosenLog.Physics) { // physics debugging
 	// 	ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 1}
 	// }
 
+	// process inputs
 	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.MainPlayer.Physics.Grounded { // if theres a jump intent and the player is on the ground
 		player.StartJump(&core.MainPlayer)
 	}
@@ -132,7 +130,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// this function is called automatically by ebiten every animation frame
 
-	// draw background (todo: parallax)
+	// draw background (TODO: parallax)
 	screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
 
 	chunk := core.GetChunk(core.MainPlayer)
@@ -144,7 +142,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				if chunklet[k].Type == core.OAK {
 					draw_oak(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
 				} else if chunklet[k].Type == core.OAK_LOG {
-					draw_oaklog(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO)
+					draw_oaklog(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
 				}
 			}
 			// if there's ground here, draw some ground
@@ -191,6 +189,7 @@ func dbget(db *sql.DB, sqlstuff string) *sql.Rows {
 }
 
 func draw_oak(screen *ebiten.Image, x float64, y float64) {
+	// resize and translate the oak image, then put it on screen
 	oakDrawOptions := &ebiten.DrawImageOptions{}
 	oakDrawOptions.GeoM.Reset()
 	core.ResizeImage(core.OakImg, oakDrawOptions, core.OAK_WIDTH*core.PIXEL_YARD_RATIO, core.OAK_HEIGHT*core.PIXEL_YARD_RATIO) // optimizable by moving scaling somewhere else that's not called every tick
@@ -199,6 +198,7 @@ func draw_oak(screen *ebiten.Image, x float64, y float64) {
 }
 
 func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
+	// resize and translate the oak log image, then put it on screen
 	logDrawOptions := &ebiten.DrawImageOptions{}
 	logDrawOptions.GeoM.Reset()
 	// NOTE optimizeable by moving resizing somewhere else that's not called every tick
@@ -208,16 +208,16 @@ func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
 }
 
 func main() {
-	//open the database
+	// open the database
 	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	//fill out the grid
+	// load the game state from sqlite
 	core.Grid = make(map[core.Coordinate][]core.ThingInstance)
-	rows := dbget(db, "select * from things WHERE placeID = \"place0\"")
+	rows := dbget(db, "select * from things WHERE placeID = \"place0\"") // TODO in the future we need to get the main player's place and use that instead
 	defer rows.Close()
 	for rows.Next() {
 		var thingID, placeID, location, offset, textureID, thingtype string
@@ -261,7 +261,7 @@ func main() {
 					Obstructive: true,
 				},
 			})
-			// ChosenLog = &core.Grid[core.Coordinate{X: x, Y: y}][0]
+			// ChosenLog = &core.Grid[core.Coordinate{X: x, Y: y}][0] // physics debugging
 			// ChosenLog.Physics.Forces[core.GRAVITY] = &core.Vector2{X: 0, Y: 0}
 			// ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 0}
 		}
@@ -270,7 +270,6 @@ func main() {
 	//construct and run the game
 	ebiten.SetWindowSize(int(core.SCREEN_WIDTH), int(core.SCREEN_HEIGHT))
 	ebiten.SetWindowTitle("Westpunk")
-	ebiten.SetFullscreen(true)
 	if err = ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}

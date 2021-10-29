@@ -10,7 +10,7 @@ func CanMoveRight(p *core.PhysicsComponent) bool {
 }
 
 func MoveRight(p *core.PhysicsComponent) {
-	p.Motion.Add(core.Vector2{X: 0.09, Y: 0})
+	p.Motion.Add(core.Vector2{X: core.PLAYER_WALK_SPEED, Y: 0})
 }
 
 func CanMoveLeft(p *core.PhysicsComponent) bool {
@@ -19,10 +19,11 @@ func CanMoveLeft(p *core.PhysicsComponent) bool {
 }
 
 func MoveLeft(p *core.PhysicsComponent) {
-	p.Motion.Add(core.Vector2{X: -0.09, Y: 0})
+	p.Motion.Add(core.Vector2{X: -core.PLAYER_WALK_SPEED, Y: 0})
 }
 
 func ConfineToPlace(p *core.PhysicsComponent) {
+	// stop the player from leaving the place. In the future, leaving the place will bring you to the place map
 	right_edge := core.PLACE_WIDTH - (0.5 * core.SCREEN_WIDTH / core.PIXEL_YARD_RATIO)
 	if p.Position.X+p.Width > right_edge {
 		p.Position.X = right_edge

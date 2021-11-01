@@ -92,33 +92,12 @@ type ThingInstance struct {
 	Physics PhysicsComponent
 }
 
-// the commented out code below is theoretically for representing uneven terrain for the iceboxed IK walking animation system
-// type LineEquation struct {
-// 	Slope      float64
-// 	YIntercept float64
-// }
-
-// func (l *LineEquation) Y(x float64) float64 {
-// 	return l.Slope*x + l.YIntercept
-// }
-
-// type GroundPiecewise struct {
-// 	Pieces [5]LineEquation
-// }
-
-// func (gp *GroundPiecewise) Y(x float64) float64 {
-// 	return gp.Pieces[int(x)].Y(x)
-// }
-
-// func (gp *GroundPiecewise) SetPiece(l LineEquation, slot int) {
-// 	gp.Pieces[slot] = l
-// }
-
 // enums
 type AnimationType int
 type Direction int
 type Thing int
 type Force int
+type AudioID int
 
 const (
 	WALK_TRANSITION_FRAMES int = 20 // how long to transition from standing to walking and back
@@ -144,6 +123,8 @@ const (
 	GRAVITY Force = iota + 1
 	JUMP_FORCE
 	KNOCKBACK
+	// sound enums
+	SOUND_RS AudioID = iota + 1
 	// player body proportion constants
 	TORSO_WIDTH      float64 = 0.25
 	TORSO_HEIGHT     float64 = 0.5

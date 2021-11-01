@@ -13,6 +13,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "modernc.org/sqlite"
+	"rbrewer.com/audio"
 	"rbrewer.com/core"
 	"rbrewer.com/physics"
 	"rbrewer.com/player"
@@ -208,6 +209,9 @@ func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
 }
 
 func main() {
+	defer audio.Close()
+	audio.Init()
+
 	// open the database
 	db, err := sql.Open("sqlite", "./database.db")
 	if err != nil {

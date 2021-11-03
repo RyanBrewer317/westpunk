@@ -98,6 +98,7 @@ type Direction int
 type Thing int
 type Force int
 type AudioID int
+type AudioType int
 
 const (
 	WALK_TRANSITION_FRAMES int = 20 // how long to transition from standing to walking and back
@@ -124,7 +125,9 @@ const (
 	JUMP_FORCE
 	KNOCKBACK
 	// sound enums
-	SOUND_RS AudioID = iota + 1
+	SOUND_RS AudioID   = iota + 1
+	MUSIC    AudioType = iota + 1
+	SFX
 	// player body proportion constants
 	TORSO_WIDTH      float64 = 0.25
 	TORSO_HEIGHT     float64 = 0.5

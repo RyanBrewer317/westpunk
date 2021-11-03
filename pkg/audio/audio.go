@@ -2,6 +2,7 @@ package audio
 
 import (
 	"log"
+	"math"
 	"os"
 	"time"
 
@@ -12,102 +13,198 @@ import (
 	"rbrewer.com/core"
 )
 
-type sound struct {
-	control  *beep.Ctrl
-	streamer *beep.StreamSeekCloser
-	volume   *effects.Volume
-	speed    *beep.Resampler
+type music struct {
+	streamer    *beep.StreamSeekCloser
+	resampler   *beep.Resampler
+	sample_rate beep.SampleRate
+}
+
+type sfx struct {
+	buffer      *beep.Buffer
+	sample_rate beep.SampleRate
 }
 
 type sound_file struct {
 	name string
 	id   core.AudioID
+	kind core.AudioType
 }
 
-var audio_bank map[core.AudioID]*sound = make(map[core.AudioID]*sound)
-var format beep.Format
-var CTRL beep.Ctrl
+type music_streamer struct{}
+
+func (s *music_streamer) Stream(samples [][2]float64) (int, bool) {
+	if paused {
+		for i := range samples {
+			samples[i] = [2]float64{}
+		}
+		return len(samples), true
+	}
+	filled := 0
+	for filled < len(samples) {
+		if len(queue) == 0 {
+			for i := range samples[filled:] {
+				samples[i][0] = 0
+				samples[i][1] = 0
+			}
+			break
+		}
+
+		n, ok := queue[0].Stream(samples[filled:])
+		gain := 0.0
+		if !music_silent {
+			gain = math.Pow(music_volume_base, music_volume)
+		}
+		for i := range samples[:n] {
+			samples[i][0] *= gain
+			samples[i][1] *= gain
+		}
+		if !ok {
+			queue = queue[1:]
+			if len(queue) > 0 {
+				queue[0].Seek(0)
+			}
+		}
+		filled += n
+	}
+	return len(samples), true
+}
+
+func (q *music_streamer) Err() error {
+	return nil
+}
+
+var (
+	music_bank       map[core.AudioID]*music = make(map[core.AudioID]*music)
+	sfx_bank         map[core.AudioID]*sfx   = make(map[core.AudioID]*sfx)
+	fixed_samplerate beep.SampleRate         = 44100
+	music_mixer      music_streamer
+	sfx_mixer        beep.Mixer
+	queue            []beep.StreamSeeker
+	audio_mixer      beep.Mixer
+	paused           bool
+	music_volume     float64
+	music_silent     bool
+	sfx_volume       float64
+	sfx_silent       bool
+)
+
+const music_volume_base = 2
+const sfx_volume_base = 2
 
 func Init() {
-	var streamer beep.StreamSeekCloser
-	files := [1]sound_file{sound_file{name: "0010840.mp3", id: core.SOUND_RS}}
+	files := [1]sound_file{{name: "0010840.mp3", id: core.SOUND_RS, kind: core.MUSIC}}
 	for i := 0; i < len(files); i++ {
 		f, err := os.Open(files[i].name)
 		if err != nil {
 			log.Fatal(err)
 		}
-		streamer, format, err = mp3.Decode(f)
+		streamer, format, err := mp3.Decode(f)
 		if err != nil {
 			log.Fatal(err)
 		}
-		control := &beep.Ctrl{
-			Streamer: streamer,
-			Paused:   false,
-		}
-		volume := &effects.Volume{
-			Streamer: control,
-			Base:     2,
-			Volume:   0,
-			Silent:   false,
-		}
-		speed := beep.ResampleRatio(4, 1, volume.Streamer)
-		audio_bank[files[i].id] = &sound{
-			control:  control,
-			streamer: &streamer,
-			volume:   volume,
-			speed:    speed,
+		switch files[i].kind {
+		case core.MUSIC:
+			resampled := beep.Resample(4, format.SampleRate, fixed_samplerate, streamer)
+			music_bank[files[i].id] = &music{
+				resampler:   resampled,
+				streamer:    &streamer,
+				sample_rate: format.SampleRate,
+			}
+
+		case core.SFX:
+			buffer := beep.NewBuffer(format)
+			buffer.Append(streamer)
+			streamer.Close()
+			sfx_bank[files[i].id] = &sfx{
+				buffer:      buffer,
+				sample_rate: format.SampleRate,
+			}
 		}
 	}
 
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	speaker.Init(fixed_samplerate, fixed_samplerate.N(time.Second/10))
+	go speaker.Play(&audio_mixer)
+	audio_mixer.Add(&music_mixer)
+	audio_mixer.Add(&sfx_mixer)
 }
 
-func Play(audio_id core.AudioID) {
-	speaker.Play(audio_bank[audio_id].speed)
-}
-
-func Test() {
-	Play(core.SOUND_RS)
+func add_to_queue(streamers ...beep.StreamSeeker) {
+	queue = append(queue, streamers...)
 }
 
 func Close() {
-	for _, sound := range audio_bank {
+	for _, sound := range music_bank {
 		(*sound.streamer).Close()
 	}
 }
 
-func Pause(audio_id core.AudioID) {
+func PlaySFX(audio_id core.AudioID) {
+	buffer := sfx_bank[audio_id].buffer
+	s := buffer.Streamer(0, buffer.Len())
+	resampled := beep.Resample(4, sfx_bank[audio_id].sample_rate, fixed_samplerate, s)
+	volume := &effects.Volume{
+		Base:     sfx_volume_base,
+		Volume:   sfx_volume,
+		Streamer: resampled,
+		Silent:   sfx_silent,
+	}
+	audio_mixer.Add(volume)
+}
+
+func PlayMusic(audio_id core.AudioID) {
+	queue = []beep.StreamSeeker{}
+	add_to_queue(*music_bank[audio_id].streamer)
+}
+
+func QueueMusic(audio_id core.AudioID) {
+	add_to_queue(*music_bank[audio_id].streamer)
+}
+
+func Pause() {
 	speaker.Lock()
-	audio_bank[audio_id].control.Paused = true
+	paused = true
 	speaker.Unlock()
 }
 
 func Unpause(audio_id core.AudioID) {
 	speaker.Lock()
-	audio_bank[audio_id].control.Paused = false
+	paused = false
 	speaker.Unlock()
 }
 
 func TogglePause(audio_id core.AudioID) {
 	speaker.Lock()
-	audio_bank[audio_id].control.Paused = !audio_bank[audio_id].control.Paused
+	paused = !paused
 	speaker.Unlock()
 }
 
-func SetVolume(audio_id core.AudioID, volume float64, differential bool) {
+func SetMusicVolume(volume float64) {
 	speaker.Lock()
-	audio_bank[audio_id].volume.Volume += volume
-	if !differential {
-		audio_bank[audio_id].volume.Volume = volume
-	}
+	music_volume = volume
 	speaker.Unlock()
 }
 
-func SetSpeedRatio(audio_id core.AudioID, amount float64, differential bool) {
+func SetSFXVolume(volume float64) {
 	speaker.Lock()
-	audio_bank[audio_id].speed.SetRatio(audio_bank[audio_id].speed.Ratio() + amount)
-	if !differential {
-		audio_bank[audio_id].speed.SetRatio(amount)
-	}
+	sfx_volume = volume
 	speaker.Unlock()
 }
+
+func DecibelsToVolumePercent(dB float64) float64 {
+	return math.Pow(10, dB/20)
+}
+
+func VolumePercentToDecibels(vol float64) float64 {
+	return 20 * math.Log10(vol)
+}
+
+// TODO: ambiant streamer that weighted-randomly plays sfx from a given list every now and then until the streamer is stopped
+// TODO: sound virtualization based on in-game distance (integrate as much as possible instead of a new thing)
+// TODO: add/remove effects to music_mixer while it's playing
+// TODO: pitch-changing effect
+// TODO: add functionality for random pitch variation for sfx
+// TODO: volume-based fading effect
+// TODO: panning based on in-game location
+// TODO: sound importance
+// TODO: "HDR"
+// TODO: one-shot sfx vs longer sfx

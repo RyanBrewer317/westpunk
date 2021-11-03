@@ -1,0 +1,95 @@
+{
+  "main": {
+    "id": "2fc3f11df720a120",
+    "type": "split",
+    "children": [
+      {
+        "id": "f719ecc901682371",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "audio system.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "153bdbe525ed7ac2",
+    "type": "split",
+    "children": [
+      {
+        "id": "09f262c8b919291d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f4958c1814a720de",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "e72505a2df7a6dab",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "073fc662c4d8c31d",
+    "type": "split",
+    "children": [
+      {
+        "id": "ab052d6c75ba9919",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fbf48555ad8c42b5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "audio system.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "f719ecc901682371",
+  "lastOpenFiles": [
+    "audio system.md",
+    "todo.md",
+    "Video1 script.md"
+  ]
+}

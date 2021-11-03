@@ -10,7 +10,7 @@ import (
 	"github.com/faiface/beep/effects"
 	"github.com/faiface/beep/mp3"
 	"github.com/faiface/beep/speaker"
-	"rbrewer.com/core"
+	"ryanbrewer.page/core"
 )
 
 type music struct {

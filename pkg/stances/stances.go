@@ -3,7 +3,7 @@ package stances
 import (
 	"math"
 
-	"rbrewer.com/core"
+	"ryanbrewer.page/core"
 )
 
 var (

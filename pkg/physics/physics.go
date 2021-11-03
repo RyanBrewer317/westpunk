@@ -1,7 +1,7 @@
 package physics
 
 import (
-	"rbrewer.com/core"
+	"ryanbrewer.page/core"
 )
 
 func CanMoveRight(p *core.PhysicsComponent) bool {

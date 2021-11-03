@@ -13,11 +13,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "modernc.org/sqlite"
-	"rbrewer.com/audio"
-	"rbrewer.com/core"
-	"rbrewer.com/physics"
-	"rbrewer.com/player"
-	"rbrewer.com/stances"
+	"ryanbrewer.page/audio"
+	"ryanbrewer.page/core"
+	"ryanbrewer.page/physics"
+	"ryanbrewer.page/player"
+	"ryanbrewer.page/stances"
 )
 
 // var ChosenLog *core.ThingInstance // physics debugging

@@ -5,8 +5,8 @@ import (
 	"math"
 
 	ebiten "github.com/hajimehoshi/ebiten/v2"
-	"rbrewer.com/core"
-	"rbrewer.com/stances"
+	"ryanbrewer.page/core"
+	"ryanbrewer.page/stances"
 )
 
 func DrawPlayer(screen *ebiten.Image, player core.Player, x float64, y float64) {

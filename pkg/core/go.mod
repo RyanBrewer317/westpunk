@@ -1,4 +1,4 @@
-module rbrewer.com/core
+module ryanbrewer.page/core
 
 go 1.16
 

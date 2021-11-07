@@ -106,7 +106,6 @@ func (g *Game) Update() error {
 		player.ContinueStance(&core.MainPlayer)
 		if core.MainPlayer.WalkingStanceTo == stances.JumpRight2 || core.MainPlayer.WalkingStanceTo == stances.JumpLeft2 {
 			player.ActualJump(&core.MainPlayer)
-			audio.PlaySFX(core.SOUND_RS, core.MainPlayer.Physics.Position)
 		} else if core.MainPlayer.WalkingStanceTo == stances.JumpRight3 || core.MainPlayer.WalkingStanceTo == stances.JumpLeft3 {
 			player.EndJump(&core.MainPlayer)
 		}

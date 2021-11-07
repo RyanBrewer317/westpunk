@@ -157,6 +157,8 @@ const (
 	PIXEL_YARD_RATIO float64 = 70
 	// speeds
 	PLAYER_WALK_SPEED float64 = 0.09
+	// the maximum distance at which a sound source actually creates sound
+	EARSHOT float64 = 10
 )
 
 //the player that the viewport centers around and the inputs control

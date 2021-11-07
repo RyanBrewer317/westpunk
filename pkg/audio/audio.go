@@ -24,6 +24,12 @@ type sfx struct {
 	sample_rate beep.SampleRate
 }
 
+type sfx_instance struct {
+	position core.Vector2
+	volume   *effects.Volume
+	pan      *effects.Pan
+}
+
 type sound_file struct {
 	name string
 	id   core.AudioID
@@ -80,19 +86,20 @@ var (
 	music_mixer      music_streamer
 	sfx_mixer        beep.Mixer
 	queue            []beep.StreamSeeker
+	active_sfx       map[*beep.Streamer]sfx_instance = make(map[*beep.Streamer]sfx_instance)
 	audio_mixer      beep.Mixer
-	paused           bool
-	music_volume     float64
-	music_silent     bool
-	sfx_volume       float64
-	sfx_silent       bool
+	paused           bool    = false
+	music_volume     float64 = 1
+	music_silent     bool    = false
+	sfx_volume       float64 = 1
+	sfx_silent       bool    = false
 )
 
 const music_volume_base = 2
 const sfx_volume_base = 2
 
 func Init() {
-	files := [1]sound_file{{name: "0010840.mp3", id: core.SOUND_RS, kind: core.MUSIC}}
+	files := [1]sound_file{{name: "0010840.mp3", id: core.SOUND_RS, kind: core.SFX}}
 	for i := 0; i < len(files); i++ {
 		f, err := os.Open(files[i].name)
 		if err != nil {
@@ -138,7 +145,7 @@ func Close() {
 	}
 }
 
-func PlaySFX(audio_id core.AudioID) {
+func PlaySFX(audio_id core.AudioID, position core.Vector2) {
 	buffer := sfx_bank[audio_id].buffer
 	s := buffer.Streamer(0, buffer.Len())
 	resampled := beep.Resample(4, sfx_bank[audio_id].sample_rate, fixed_samplerate, s)
@@ -148,7 +155,13 @@ func PlaySFX(audio_id core.AudioID) {
 		Streamer: resampled,
 		Silent:   sfx_silent,
 	}
-	audio_mixer.Add(volume)
+	pan := &effects.Pan{Streamer: volume, Pan: 0}
+	var output beep.Streamer
+	output = beep.Seq(pan, beep.Callback(func() {
+		delete(active_sfx, &output)
+	}))
+	sfx_mixer.Add(output)
+	active_sfx[&output] = sfx_instance{position: position, volume: volume, pan: pan}
 }
 
 func PlayMusic(audio_id core.AudioID) {
@@ -158,6 +171,18 @@ func PlayMusic(audio_id core.AudioID) {
 
 func QueueMusic(audio_id core.AudioID) {
 	add_to_queue(*music_bank[audio_id].streamer)
+}
+
+func UpdateSFXBasedOnPositions(x float64) {
+	speaker.Lock()
+	for key := range active_sfx {
+		if math.Abs(x-active_sfx[key].position.X) > core.EARSHOT {
+			continue
+		}
+		active_sfx[key].volume.Volume = sfx_volume * (1 - math.Abs(x-active_sfx[key].position.X)/core.EARSHOT)
+		active_sfx[key].pan.Pan = (active_sfx[key].position.X - x) / core.EARSHOT
+	}
+	speaker.Unlock()
 }
 
 func Pause() {

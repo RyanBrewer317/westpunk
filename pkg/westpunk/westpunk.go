@@ -106,6 +106,7 @@ func (g *Game) Update() error {
 		player.ContinueStance(&core.MainPlayer)
 		if core.MainPlayer.WalkingStanceTo == stances.JumpRight2 || core.MainPlayer.WalkingStanceTo == stances.JumpLeft2 {
 			player.ActualJump(&core.MainPlayer)
+			audio.PlaySFX(core.SOUND_RS, core.MainPlayer.Physics.Position)
 		} else if core.MainPlayer.WalkingStanceTo == stances.JumpRight3 || core.MainPlayer.WalkingStanceTo == stances.JumpLeft3 {
 			player.EndJump(&core.MainPlayer)
 		}
@@ -120,6 +121,8 @@ func (g *Game) Update() error {
 		// if theres intent to move left and the left isnt obstructed
 		physics.MoveLeft(&core.MainPlayer.Physics)
 	}
+
+	audio.UpdateSFXBasedOnPositions(core.MainPlayer.Physics.Position.X)
 
 	// shift the viewport
 	core.VP.X = core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO - (core.SCREEN_WIDTH / 2) + (core.PLAYER_WIDTH * core.PIXEL_YARD_RATIO / 2)

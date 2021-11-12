@@ -3,24 +3,32 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"image/color"
 	_ "image/png"
+	"io/ioutil"
 	"log"
 
 	"strconv"
 	"strings"
 
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	_ "modernc.org/sqlite"
 	"ryanbrewer.page/audio"
 	"ryanbrewer.page/core"
 	"ryanbrewer.page/physics"
 	"ryanbrewer.page/player"
+	"ryanbrewer.page/settings_ui"
 	"ryanbrewer.page/stances"
 )
 
 // var ChosenLog *core.ThingInstance // physics debugging
+var settingsBackgroundImg *ebiten.Image
+var settingsBackgroundDrawOptions *ebiten.DrawImageOptions
 
 func init() {
 	// this function is called automatically by ebiten
@@ -58,6 +66,20 @@ func init() {
 		log.Fatal(err)
 	}
 	core.BackgroundDrawOptions = ebiten.DrawImageOptions{}
+	settingsBackgroundImg = ebiten.NewImage(int(core.SCREEN_WIDTH), int(core.SCREEN_HEIGHT))
+	settingsBackgroundDrawOptions = &ebiten.DrawImageOptions{}
+	settingsBackgroundImg.Fill(color.White)
+
+	settings_ui.PrepareSettingsUIImages()
+
+	fontBytes, err := ioutil.ReadFile("dpcomic.ttf")
+	if err != nil {
+		log.Fatal(err)
+	}
+	core.FONT, err = freetype.ParseFont(fontBytes)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// create the background image TODO: parallax
 	core.ResizeImage(core.BackgroundImg, &core.BackgroundDrawOptions, core.SCREEN_WIDTH, core.SCREEN_HEIGHT)
@@ -69,6 +91,27 @@ type Game struct{}
 func (g *Game) Update() error {
 	// this function is called automatically every game tick (not every animation frame) by ebiten
 
+	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
+		core.SETTINGS_GAME_PAUSED = !core.SETTINGS_GAME_PAUSED
+	}
+
+	if core.SETTINGS_GAME_PAUSED {
+		if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+			mousex, mousey := ebiten.CursorPosition()
+			mousePhysics := core.PhysicsComponent{
+				Position: core.Vector2{
+					X: float64(mousex),
+					Y: float64(mousey),
+				},
+				Height: 0,
+				Width:  0,
+			}
+			if physics.CollisionDetected(mousePhysics, settings_ui.MuteSFX.Physics) {
+				core.SETTINGS_SFX_MUTED = !core.SETTINGS_SFX_MUTED
+			}
+		}
+		return nil
+	}
 	// update the main player's animation clock to move it one step closer to the stance it's approaching
 	core.MainPlayer.WalkingAnimationFrame += 1
 
@@ -126,7 +169,7 @@ func (g *Game) Update() error {
 
 	// shift the viewport
 	core.VP.X = core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO - (core.SCREEN_WIDTH / 2) + (core.PLAYER_WIDTH * core.PIXEL_YARD_RATIO / 2)
-	core.VP.Y = core.MainPlayer.Physics.Position.Y*core.PIXEL_YARD_RATIO - (core.SCREEN_HEIGHT / 2) - (core.MainPlayer.Physics.Height * core.PIXEL_YARD_RATIO / 2)
+	core.VP.Y = (core.MainPlayer.Physics.Position.Y+core.MainPlayer.Physics.Height)*core.PIXEL_YARD_RATIO - (core.SCREEN_HEIGHT / 2) - (core.MainPlayer.Physics.Height * core.PIXEL_YARD_RATIO / 2)
 
 	return nil
 }
@@ -134,8 +177,17 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// this function is called automatically by ebiten every animation frame
 
+	if core.SETTINGS_GAME_PAUSED {
+		settings_ui.MuteSFX.Physics.Position.X = core.SCREEN_WIDTH * 0.75
+		settings_ui.MuteSFX.Physics.Position.Y = core.SCREEN_HEIGHT * 0.5
+		core.DrawImage(screen, settingsBackgroundImg, *settingsBackgroundDrawOptions, 0, 0)
+		text.Draw(screen, "Mute SFX", truetype.NewFace(core.FONT, &truetype.Options{}), int(core.SCREEN_WIDTH*0.5), int(core.SCREEN_HEIGHT*0.5), color.Black)
+		settings_ui.MuteSFX.Draw(screen)
+		return
+	}
+
 	// draw background (TODO: parallax)
-	screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
+	// screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
 
 	chunk := core.GetChunk(core.MainPlayer)
 	// cycle through every 1x1 area in the big area around the player, to find nearby static objects and put them on screen

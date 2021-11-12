@@ -313,7 +313,7 @@ func PositionRightFoot(player *core.Player, x float64, y float64) {
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH-core.UPPER_LEG_WIDTH/2, *player)
 	dify2, difx2 := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx + difx2
-	pelvis_y := player.Physics.Position.Y + dify - dify2
+	pelvis_y := player.Physics.Position.Y + player.Physics.Height + dify - dify2
 	player.Stance.RightUpperLeg, player.Stance.RightLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
 }
 
@@ -321,7 +321,7 @@ func PositionLeftFoot(player *core.Player, x float64, y float64) {
 	// use inverse kinematics to position the player's left foot at (x, y)
 	dify, difx := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx
-	pelvis_y := player.Physics.Position.Y - dify
+	pelvis_y := player.Physics.Position.Y + player.Physics.Height - dify
 	player.Stance.LeftUpperLeg, player.Stance.LeftLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
 }
 
@@ -329,13 +329,13 @@ func PositionRightHand(player *core.Player, x float64, y float64) {
 	// use inverse kinematics to position the player's right hand at (x, y)
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH, *player)
 	shoulder_x := player.Physics.Position.X + difx
-	shoulder_y := player.Physics.Position.Y + dify
+	shoulder_y := player.Physics.Position.Y + player.Physics.Height + dify
 	player.Stance.RightUpperArm, player.Stance.RightLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
 }
 
 func PositionLeftHand(player *core.Player, x float64, y float64) {
 	// use inverse kinematics to position the player's left hand at (x, y)
 	shoulder_x := player.Physics.Position.X
-	shoulder_y := player.Physics.Position.Y
+	shoulder_y := player.Physics.Position.Y + player.Physics.Height
 	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
 }

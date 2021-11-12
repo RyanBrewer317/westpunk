@@ -3,6 +3,7 @@ package core
 import (
 	"math"
 
+	"github.com/golang/freetype/truetype"
 	ebiten "github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -197,6 +198,7 @@ var (
 	OakLogImg             *ebiten.Image
 	BackgroundImg         *ebiten.Image
 	BackgroundDrawOptions ebiten.DrawImageOptions
+	FONT                  *truetype.Font
 )
 
 // convert a unit y-coordinate a pixel y-coordinate
@@ -261,14 +263,14 @@ func GetChunk(p Player) (chunk Chunk) {
 	if math.Floor(p.Physics.Position.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
 		chunk.StartY = int(math.Floor(p.Physics.Position.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Physics.Position.Y+1)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
-		chunk.EndY = int(math.Floor(p.Physics.Position.Y+1) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.Y+p.Physics.Height)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
+		chunk.EndY = int(math.Floor(p.Physics.Position.Y+p.Physics.Height) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
 	if math.Floor(p.Physics.Position.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
 		chunk.StartX = int(math.Floor(p.Physics.Position.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Physics.Position.X+1)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
-		chunk.EndX = int(math.Floor(p.Physics.Position.X+1) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	if math.Floor(p.Physics.Position.X+p.Physics.Width)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
+		chunk.EndX = int(math.Floor(p.Physics.Position.X+p.Physics.Width) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
 	return
 }
@@ -298,37 +300,3 @@ func IK(first_bone_length float64, second_bone_length float64, base_x float64, b
 	}
 	return new_base_joint_angle, new_connector_joint_angle
 }
-
-// func CurrentGround(player Player) GroundPiecewise {
-// 	out := GroundPiecewise{Pieces: [5]LineEquation{}}
-// 	groundchunk := Chunk{StartX: int(player.X) - 2, EndX: int(player.X) + 2, StartY: int(player.Y-player.Height) - 1, EndY: int(player.Y)}
-// 	for x := groundchunk.StartX; x < groundchunk.EndX; x++ {
-// 		found := false
-// 		for y := groundchunk.EndY; y > groundchunk.StartY; y-- {
-// 			chunklet := Grid[Coordinate{x, y}]
-// 			for i := 0; i < len(chunklet); i++ {
-// 				if chunklet[i] == OAK_LOG {
-// 					out.SetPiece(LineEquation{Slope: 0, YIntercept: OAK_LOG_HEIGHT}, x-groundchunk.StartX)
-// 					found = true
-// 					break
-// 				}
-// 			}
-// 			if found {
-// 				break
-// 			}
-// 		}
-// 		if !found {
-// 			out.SetPiece(LineEquation{Slope: 0, YIntercept: 0}, x-groundchunk.StartX)
-// 		}
-// 	}
-// 	return out
-// }
-
-// func ArrayIncludes(array []interface{}, item interface{}) bool {
-// 	for i := 0; i < len(array); i++ {
-// 		if array[i] == item {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }

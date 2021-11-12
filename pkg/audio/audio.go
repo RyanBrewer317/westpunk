@@ -177,9 +177,11 @@ func UpdateSFXBasedOnPositions(x float64) {
 	speaker.Lock()
 	for key := range active_sfx {
 		if math.Abs(x-active_sfx[key].position.X) > core.EARSHOT {
+			active_sfx[key].volume.Silent = true
 			continue
 		}
-		active_sfx[key].volume.Volume = *sfx_volume * (1 - math.Abs(x-active_sfx[key].position.X)/core.EARSHOT)
+		active_sfx[key].volume.Silent = false
+		active_sfx[key].volume.Volume = -10 * math.Abs(x-active_sfx[key].position.X) / core.EARSHOT
 		active_sfx[key].pan.Pan = (active_sfx[key].position.X - x) / core.EARSHOT
 	}
 	speaker.Unlock()

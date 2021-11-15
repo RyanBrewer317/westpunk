@@ -9,7 +9,7 @@ import (
 
 // this is only for drawing the player, enabling multiple players to be rendered in a multi-player environment
 type Player struct {
-	// the player's x,y coordinate is at their left shoulder from the viewer's perspective
+	// the player's x,y coordinate is on the foot-elevation right below the left shoulder. The left shoulder is at (x, y+height)
 	Physics PhysicsComponent
 
 	// the player is constantly transitioning from one animation to another, for smoothness and liveliness
@@ -26,10 +26,12 @@ type Player struct {
 }
 
 // static objects are stored on a grid so that only nearby ones are "loaded"
+// Coordinate is used as the hash table key to access them
 type Coordinate struct {
 	X, Y int
 }
 
+// a utility struct for working with an arbitrary rectangle on the grid
 type Chunk struct {
 	StartX, StartY, EndX, EndY int
 }
@@ -38,6 +40,7 @@ type Chunk struct {
 type Viewport Vector2
 
 // there's too much in a stance to not organize it this way
+// at the moment, hands and feet have a length of 0 and an angle-difference-from-parent of 0, aka they don't exist
 type Stance struct {
 	Head,
 	Torso,
@@ -56,22 +59,27 @@ type Stance struct {
 }
 
 // how the stance after a given stance is stored. This could probably be improved
+// the problem is that structs aren't allowed to circularly point to each other
+// Considering using a callback instead?
 type StanceContinuation struct {
 	Start        Stance
 	Continuation Stance
 	Frames       int
 }
 
+// utility struct to represent a position-off-the-grid, a translation, a physics force, etc
 type Vector2 struct {
 	X, Y float64
 }
 
 func (v *Vector2) Scale(coeff float64) {
+	// edits this vector in-place
 	v.X *= coeff
 	v.Y *= coeff
 }
 
 func (v *Vector2) Add(other Vector2) {
+	// edits this vector in-place
 	v.X += other.X
 	v.Y += other.Y
 }
@@ -81,25 +89,27 @@ type PhysicsComponent struct {
 	Position    Vector2
 	Motion      Vector2
 	Velocity    Vector2
-	Forces      map[Force]*Vector2
+	Forces      map[ForceType]*Vector2
 	Height      float64
 	Width       float64
 	Obstructive bool
 	Grounded    bool
 }
 
+// a static thing somewhere on the grid
 type ThingInstance struct {
-	Type    Thing
+	Type    ThingType
 	Physics PhysicsComponent
 }
 
 // enums
-type AnimationType int
-type Direction int
-type Thing int
-type Force int
-type AudioID int
-type AudioType int
+type AnimationType int   // basically the different action animations
+type Direction int       // the game directions, like DIRECTION_LEFT
+type ThingType int       // the types of static things in the game, like THING_TYPE_OAK
+type ForceType int       // the types of forces that can influence a physics component
+type AudioID int         // the ID of each piece of audio, used to indicate which sound you want to play
+type AudioType int       // the different types of audio, like AUDIO_TYPE_MUSIC
+type ObstructionType int // specifies how the player walks through a thing, like OBSTRUCTION_TYPE_UNOBSTRUCTIVE
 
 const (
 	WALK_TRANSITION_FRAMES int = 20 // how long to transition from standing to walking and back
@@ -108,27 +118,32 @@ const (
 	JUMP_TRANSITION_FRAMES int = 10 // how long to transition from crouching to up in the air
 	JUMP_TIME_FRAMES       int = 10 // how long to transition from in the air to landing
 	// animation type enums
-	STANDING AnimationType = iota + 1
-	WALKING_RIGHT
-	WALKING_LEFT
-	JUMPING_RIGHT
-	JUMPING_LEFT
-	LEAPING_RIGHT
-	LEAPING_LEFT
+	ANIMATION_TYPE_STANDING AnimationType = iota + 1
+	ANIMATION_TYPE_WALKING_RIGHT
+	ANIMAtION_TYPE_WALKING_LEFT
+	ANIMATION_TYPE_JUMPING_RIGHT
+	ANIMAtiON_TYPE_JUMPING_LEFT
+	ANIMATION_TYPE_LEAPING_RIGHT
+	ANIMATION_TYPE_LEAPING_LEFT
 	// direction enums
-	RIGHT Direction = iota + 1
-	LEFT
+	DIRECTION_RIGHT Direction = iota + 1
+	DIRECTION_LEFT
 	// thing type enums
-	OAK Thing = iota + 1
-	OAK_LOG
+	THING_TYPE_OAK ThingType = iota + 1
+	THING_TYPE_OAK_LOG
 	// force type enums
-	GRAVITY Force = iota + 1
-	JUMP_FORCE
-	KNOCKBACK
+	FORCE_TYPE_GRAVITY ForceType = iota + 1
+	FORCE_TYPE_JUMP
+	FORCE_TYPE_KNOCKBACK
 	// sound enums
-	SOUND_RS AudioID   = iota + 1
-	MUSIC    AudioType = iota + 1
-	SFX
+	SOUND_RS         AudioID   = iota + 1
+	AUDIO_TYPE_MUSIC AudioType = iota + 1
+	AUDIO_TYPE_SFX
+	// obstruction enums
+	OBSTRUCTION_TYPE_OBSTRUCTIVE ObstructionType = iota + 1
+	OBSTRUCTION_TYPE_UNOBSTRUCTIVE
+	OBSTRUCTION_TYPE_RIGHT_SLANT_45
+	OBSTRUCTION_TYPE_LEFT_SLANT_45
 	// player body proportion constants
 	TORSO_WIDTH      float64 = 0.25
 	TORSO_HEIGHT     float64 = 0.5
@@ -145,7 +160,7 @@ const (
 	// other proportion constants
 	PLACE_WIDTH    float64 = 256
 	PLACE_HEIGHT   float64 = 128
-	PLAYER_WIDTH   float64 = 0.5
+	PLAYER_WIDTH   float64 = 0.25
 	GROUND_HEIGHT  float64 = SCREEN_HEIGHT / PIXEL_YARD_RATIO
 	GROUND_Y       float64 = 0
 	OAK_HEIGHT     float64 = 5
@@ -164,7 +179,7 @@ const (
 
 //the player that the viewport centers around and the inputs control
 var MainPlayer Player = Player{
-	WalkingState:           STANDING,
+	WalkingState:           ANIMATION_TYPE_STANDING,
 	WalkingAnimationFrame:  0,
 	WalkingAnimationFrames: VIBE_FRAMES,
 	MovingLeft:             false,
@@ -174,9 +189,9 @@ var MainPlayer Player = Player{
 			X: 70, // start in the middle-ish of the world
 			Y: 0,
 		},
-		Forces: map[Force]*Vector2{
-			GRAVITY:    {X: 0, Y: 0},
-			JUMP_FORCE: {X: 0, Y: 0},
+		Forces: map[ForceType]*Vector2{
+			FORCE_TYPE_GRAVITY: {X: 0, Y: 0},
+			FORCE_TYPE_JUMP:    {X: 0, Y: 0},
 		},
 		Height:   1,
 		Width:    PLAYER_WIDTH,
@@ -187,7 +202,10 @@ var MainPlayer Player = Player{
 // the grid of static things, so that only the nearby ones are "loaded"
 var Grid map[Coordinate][]ThingInstance
 
-//global variables for the ebiten library
+// the table of the obstruction type of each thing type
+var ObstructionTable map[ThingType]ObstructionType
+
+//global variables
 var (
 	StanceContinuations   []StanceContinuation
 	VP                    Viewport
@@ -197,11 +215,12 @@ var (
 	OakImg                *ebiten.Image
 	OakLogImg             *ebiten.Image
 	BackgroundImg         *ebiten.Image
+	SettingsBackgroundImg *ebiten.Image
 	BackgroundDrawOptions ebiten.DrawImageOptions
-	FONT                  *truetype.Font
+	FONT                  *truetype.Font // this should be treated as a constant but it must be set initially programmatically
 )
 
-// convert a unit y-coordinate a pixel y-coordinate
+// convert a unit y-coordinate to a pixel y-coordinate
 func GetPXY(y float64) float64 {
 	return SCREEN_HEIGHT - (y * PIXEL_YARD_RATIO)
 }
@@ -257,25 +276,27 @@ func ChangeWalkState(player *Player, state AnimationType, new_stance Stance, fra
 	player.WalkingAnimationFrame = 0
 }
 
-func GetChunk(p Player) (chunk Chunk) {
+func GetChunk(p PhysicsComponent) (chunk Chunk) {
 	chunk = Chunk{StartX: 0, StartY: 0, EndX: int(math.Floor(PLACE_WIDTH)), EndY: int(math.Floor(PLACE_HEIGHT))}
 	// if the player isnt too close to the edges, shift each of the sides towards the player to construct a box around the player that's just out of view of the human player
-	if math.Floor(p.Physics.Position.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
-		chunk.StartY = int(math.Floor(p.Physics.Position.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	if math.Floor(p.Position.Y)-math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartY = int(math.Floor(p.Position.Y) - math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Physics.Position.Y+p.Physics.Height)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
-		chunk.EndY = int(math.Floor(p.Physics.Position.Y+p.Physics.Height) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
+	if math.Floor(p.Position.Y+p.Height)+math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO) < math.Floor(PLACE_HEIGHT) {
+		chunk.EndY = int(math.Floor(p.Position.Y+p.Height) + math.Floor(0.75*SCREEN_HEIGHT/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Physics.Position.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
-		chunk.StartX = int(math.Floor(p.Physics.Position.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	if math.Floor(p.Position.X)-math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) > 0 {
+		chunk.StartX = int(math.Floor(p.Position.X) - math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
-	if math.Floor(p.Physics.Position.X+p.Physics.Width)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
-		chunk.EndX = int(math.Floor(p.Physics.Position.X+p.Physics.Width) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
+	if math.Floor(p.Position.X+p.Width)+math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO) < math.Floor(PLACE_WIDTH) {
+		chunk.EndX = int(math.Floor(p.Position.X+p.Width) + math.Floor(0.75*SCREEN_WIDTH/PIXEL_YARD_RATIO))
 	}
 	return
 }
 
 func IK(first_bone_length float64, second_bone_length float64, base_x float64, base_y float64, target_x float64, target_y float64, concave_up bool) (new_base_joint_angle float64, new_connector_joint_angle float64) {
+	// get two joint angles given two points, two bone lengths, and the concavity
+	// this is just a basic law-of-cosines two-bone inverse kinematics solution
 	x_dif := target_x - base_x
 	y_dif := target_y - base_y
 	d := math.Sqrt(math.Pow(x_dif, 2) + math.Pow(y_dif, 2))

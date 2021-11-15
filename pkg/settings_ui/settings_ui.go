@@ -15,6 +15,7 @@ type checkbox struct {
 }
 
 func (c *checkbox) Draw(screen *ebiten.Image) {
+	// put the checkbox on the screen, checked if checked, unchecked if not
 	c.DrawOptions.GeoM.Reset()
 	if *c.Checked {
 		core.ResizeImage(checkedImage, c.DrawOptions, float64(checkboxImageWidth), float64(checkboxImageHeight))
@@ -30,6 +31,7 @@ var uncheckedImage *ebiten.Image
 var checkboxImageWidth int = 15
 var checkboxImageHeight int = 15
 
+// the checkbox that mutes or unmutes SFX
 var MuteSFX checkbox = checkbox{
 	DrawOptions: &ebiten.DrawImageOptions{},
 	Physics: core.PhysicsComponent{
@@ -40,6 +42,7 @@ var MuteSFX checkbox = checkbox{
 }
 
 func PrepareSettingsUIImages() {
+	// load the settings GUI elements and whatever other setup the settings ui needs
 	var err error
 	checkedImage, _, err = ebitenutil.NewImageFromFile("checked.png")
 	uncheckedImage, _, err = ebitenutil.NewImageFromFile("unchecked.png")

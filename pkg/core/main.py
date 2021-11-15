@@ -1,2 +1,0 @@
-a = print("hi")
-print(a)

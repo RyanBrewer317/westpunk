@@ -26,19 +26,22 @@ import (
 	"ryanbrewer.page/stances"
 )
 
-// var ChosenLog *core.ThingInstance // physics debugging
-var settingsBackgroundImg *ebiten.Image
-var settingsBackgroundDrawOptions *ebiten.DrawImageOptions
-
 func init() {
 	// this function is called automatically by ebiten
 
-	// these stances are created outside of core, so this declaration has to happen here in main
+	// these stances are created outside of core, so this declaration has to happen here in package main
+	// OPTIMIZABLE the current stance system is bad lol
 	core.MainPlayer.WalkingStanceTo = stances.RestRight2
 	core.MainPlayer.WalkingStanceFrom = stances.RestRight1
 	stances.CreateStanceContinuations()
 
+	// initialize the obstruction type table
+	core.ObstructionTable = make(map[core.ThingType]core.ObstructionType)
+	core.ObstructionTable[core.THING_TYPE_OAK] = core.OBSTRUCTION_TYPE_UNOBSTRUCTIVE
+	core.ObstructionTable[core.THING_TYPE_OAK_LOG] = core.OBSTRUCTION_TYPE_UNOBSTRUCTIVE
+
 	// load the game assets
+	// this feels optimizable
 	var err error
 	core.PlayerImg, _, err = ebitenutil.NewImageFromFile("spritesheet.png")
 	if err != nil {
@@ -66,13 +69,14 @@ func init() {
 		log.Fatal(err)
 	}
 	core.BackgroundDrawOptions = ebiten.DrawImageOptions{}
-	settingsBackgroundImg = ebiten.NewImage(int(core.SCREEN_WIDTH), int(core.SCREEN_HEIGHT))
-	settingsBackgroundDrawOptions = &ebiten.DrawImageOptions{}
-	settingsBackgroundImg.Fill(color.White)
+	core.SettingsBackgroundImg = ebiten.NewImage(int(core.SCREEN_WIDTH), int(core.SCREEN_HEIGHT))
+	core.SettingsBackgroundImg.Fill(color.White)
 
+	// in general this loads GUI images, and may at some point do whatever other init stuff needs doing
 	settings_ui.PrepareSettingsUIImages()
 
-	fontBytes, err := ioutil.ReadFile("dpcomic.ttf")
+	// load game font
+	fontBytes, err := ioutil.ReadFile("dpcomic.ttf") // TODO: change font
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,16 +90,20 @@ func init() {
 }
 
 // the struct ebiten uses as a base to operate around
+// I opted to use global variables instead of Game properties for a variety of reasons
+// the main reason is heck OOP amirite B)
 type Game struct{}
 
 func (g *Game) Update() error {
 	// this function is called automatically every game tick (not every animation frame) by ebiten
 
+	// toggle game pause on esc keyup
 	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
 		core.SETTINGS_GAME_PAUSED = !core.SETTINGS_GAME_PAUSED
 	}
 
 	if core.SETTINGS_GAME_PAUSED {
+		// TODO: move this code into the settings_ui module for repurposability
 		if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 			mousex, mousey := ebiten.CursorPosition()
 			mousePhysics := core.PhysicsComponent{
@@ -103,7 +111,7 @@ func (g *Game) Update() error {
 					X: float64(mousex),
 					Y: float64(mousey),
 				},
-				Height: 0,
+				Height: 0, // the mouse point is a 2D collider rect with 0 area
 				Width:  0,
 			}
 			if physics.CollisionDetected(mousePhysics, settings_ui.MuteSFX.Physics) {
@@ -113,18 +121,11 @@ func (g *Game) Update() error {
 		return nil
 	}
 	// update the main player's animation clock to move it one step closer to the stance it's approaching
+	// OPTIMIZABLE I don't like the stance animation system's current implementation
 	core.MainPlayer.WalkingAnimationFrame += 1
-
-	// calculate the player's height based on the angles of the body parts
-	player.SetPlayerHeight(&core.MainPlayer)
 
 	// apply physics to stuff
 	physics.Move(&core.MainPlayer.Physics)
-	// physics.Move(&ChosenLog.Physics) // physics debugging
-
-	// if physics.CollisionDetected(core.MainPlayer.Physics, ChosenLog.Physics) { // physics debugging
-	// 	ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 1}
-	// }
 
 	// process inputs
 	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.MainPlayer.Physics.Grounded { // if theres a jump intent and the player is on the ground
@@ -136,12 +137,12 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyA) { // intent to walk left has ended
 		player.StopMovingLeft(&core.MainPlayer)
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyD) && core.MainPlayer.Physics.Position.X < core.PLACE_WIDTH-0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk right and the right isnt obstructed
-		core.ChangeWalkState(&core.MainPlayer, core.WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) && physics.CanMoveRight(&core.MainPlayer.Physics) { // intent to walk right and the right isnt obstructed
+		core.ChangeWalkState(&core.MainPlayer, core.ANIMATION_TYPE_WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
 		core.MainPlayer.MovingRight = true
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) && core.MainPlayer.Physics.Position.X > 0.5*core.SCREEN_WIDTH/core.PIXEL_YARD_RATIO { // intent to walk left and the left isnt obstructed
-		core.ChangeWalkState(&core.MainPlayer, core.WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) && physics.CanMoveLeft(&core.MainPlayer.Physics) { // intent to walk left and the left isnt obstructed
+		core.ChangeWalkState(&core.MainPlayer, core.ANIMAtION_TYPE_WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
 		core.MainPlayer.MovingLeft = true
 	}
 
@@ -155,15 +156,19 @@ func (g *Game) Update() error {
 	}
 	player.UpdateStance(&core.MainPlayer)
 
-	if (core.MainPlayer.WalkingState == core.WALKING_RIGHT || core.MainPlayer.WalkingState == core.LEAPING_RIGHT) && physics.CanMoveRight(&core.MainPlayer.Physics) {
+	if (core.MainPlayer.WalkingState == core.ANIMATION_TYPE_WALKING_RIGHT || core.MainPlayer.WalkingState == core.ANIMATION_TYPE_LEAPING_RIGHT) && physics.CanMoveRight(&core.MainPlayer.Physics) {
 		// if theres intent to move right and the right isn't obstructed
 		physics.MoveRight(&core.MainPlayer.Physics)
 	}
-	if (core.MainPlayer.WalkingState == core.WALKING_LEFT || core.MainPlayer.WalkingState == core.LEAPING_LEFT) && physics.CanMoveLeft(&core.MainPlayer.Physics) {
+	if (core.MainPlayer.WalkingState == core.ANIMAtION_TYPE_WALKING_LEFT || core.MainPlayer.WalkingState == core.ANIMATION_TYPE_LEAPING_LEFT) && physics.CanMoveLeft(&core.MainPlayer.Physics) {
 		// if theres intent to move left and the left isnt obstructed
 		physics.MoveLeft(&core.MainPlayer.Physics)
 	}
 
+	// calculate the player's height based on the angles of the body parts
+	player.SetPlayerHeight(&core.MainPlayer)
+
+	// update volume, panning, etc of sfx based on distance from player TODO: this should probably incorporate Position.Y as well
 	audio.UpdateSFXBasedOnPositions(core.MainPlayer.Physics.Position.X)
 
 	// shift the viewport
@@ -177,26 +182,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// this function is called automatically by ebiten every animation frame
 
 	if core.SETTINGS_GAME_PAUSED {
-		settings_ui.MuteSFX.Physics.Position.X = core.SCREEN_WIDTH * 0.75
+		// if the game is paused, show the settings screen and don't redraw the world
+		core.DrawImage(screen, core.SettingsBackgroundImg, ebiten.DrawImageOptions{}, 0, 0)
+		settings_ui.MuteSFX.Physics.Position.X = core.SCREEN_WIDTH * 0.75 // this is wip af
 		settings_ui.MuteSFX.Physics.Position.Y = core.SCREEN_HEIGHT * 0.5
-		core.DrawImage(screen, settingsBackgroundImg, *settingsBackgroundDrawOptions, 0, 0)
-		text.Draw(screen, "Mute SFX", truetype.NewFace(core.FONT, &truetype.Options{}), int(core.SCREEN_WIDTH*0.5), int(core.SCREEN_HEIGHT*0.5), color.Black)
+		text.Draw(screen, "Mute SFX", truetype.NewFace(core.FONT, &truetype.Options{}), int(core.SCREEN_WIDTH*0.5), int(core.SCREEN_HEIGHT*0.5), color.Black) // also wip af
 		settings_ui.MuteSFX.Draw(screen)
 		return
 	}
 
 	// draw background (TODO: parallax)
-	// screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
+	screen.DrawImage(core.BackgroundImg, &core.BackgroundDrawOptions)
 
-	chunk := core.GetChunk(core.MainPlayer)
+	chunk := core.GetChunk(core.MainPlayer.Physics)
 	// cycle through every 1x1 area in the big area around the player, to find nearby static objects and put them on screen
+	// still need to plan out what to do if an object is bigger than a chunk (ie trees). Maybe we disallow that? or maybe it is recognized as in all chunks that it's in?
+	// in general that's only a problem for truly enormous things because this code goes through chunks that are slightly beyond the vision of the player
 	for i := chunk.StartY; i < chunk.EndY; i++ {
 		for j := chunk.StartX; j < chunk.EndX; j++ {
 			chunklet := core.Grid[core.Coordinate{X: j, Y: i}]
 			for k := 0; k < len(chunklet); k++ {
-				if chunklet[k].Type == core.OAK {
+				if chunklet[k].Type == core.THING_TYPE_OAK {
 					draw_oak(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
-				} else if chunklet[k].Type == core.OAK_LOG {
+				} else if chunklet[k].Type == core.THING_TYPE_OAK_LOG {
 					draw_oaklog(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
 				}
 			}
@@ -217,7 +225,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 
-	player.DrawPlayer(screen, core.MainPlayer, core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO, core.MainPlayer.Physics.Position.Y*core.PIXEL_YARD_RATIO)
+	player.DrawPlayer(screen, core.MainPlayer, core.MainPlayer.Physics.Position.X*core.PIXEL_YARD_RATIO, (core.MainPlayer.Physics.Position.Y+core.MainPlayer.Physics.Height)*core.PIXEL_YARD_RATIO) // player is drawn from the left shoulder
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -257,6 +265,7 @@ func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
 	logDrawOptions := &ebiten.DrawImageOptions{}
 	logDrawOptions.GeoM.Reset()
 	// NOTE optimizeable by moving resizing somewhere else that's not called every tick
+	// Actually that might not be true, depending on how ebiten applies transformations. Worth testing tho
 	core.ResizeImage(core.OakLogImg, logDrawOptions, core.OAK_LOG_WIDTH*core.PIXEL_YARD_RATIO, core.OAK_LOG_HEIGHT*core.PIXEL_YARD_RATIO)
 	logDrawOptions.GeoM.Translate(x-core.VP.X, core.GetPXY(y/core.PIXEL_YARD_RATIO)+core.VP.Y)
 	screen.DrawImage(core.OakLogImg, logDrawOptions)
@@ -283,31 +292,33 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		// parse database entries
 		locsplit := strings.Split(location, " ")
 		x, _ := strconv.Atoi(locsplit[0])
 		y, _ := strconv.Atoi(locsplit[1])
 		offsetsplit := strings.Split(offset, " ")
 		offset_x, _ := strconv.ParseFloat(offsetsplit[0], 64)
 		offset_y, _ := strconv.ParseFloat(offsetsplit[1], 64)
+		// populate world
 		switch t := thingtype; t {
 		case "oak":
 			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.ThingInstance{
-				Type: core.OAK,
+				Type: core.THING_TYPE_OAK,
 				Physics: core.PhysicsComponent{
 					Position: core.Vector2{
 						X: float64(x) + offset_x,
 						Y: float64(y) + offset_y,
 					},
 					Height:      core.OAK_HEIGHT,
-					Width:       core.OAK_HEIGHT,
-					Forces:      make(map[core.Force]*core.Vector2),
+					Width:       core.OAK_WIDTH,
+					Forces:      make(map[core.ForceType]*core.Vector2),
 					Obstructive: false,
 					Grounded:    true,
 				},
 			})
 		case "oaklog":
 			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.ThingInstance{
-				Type: core.OAK_LOG,
+				Type: core.THING_TYPE_OAK_LOG,
 				Physics: core.PhysicsComponent{
 					Position: core.Vector2{
 						X: float64(x) + offset_x,
@@ -315,13 +326,10 @@ func main() {
 					},
 					Height:      core.OAK_LOG_HEIGHT,
 					Width:       core.OAK_LOG_WIDTH,
-					Forces:      make(map[core.Force]*core.Vector2),
+					Forces:      make(map[core.ForceType]*core.Vector2),
 					Obstructive: true,
 				},
 			})
-			// ChosenLog = &core.Grid[core.Coordinate{X: x, Y: y}][0] // physics debugging
-			// ChosenLog.Physics.Forces[core.GRAVITY] = &core.Vector2{X: 0, Y: 0}
-			// ChosenLog.Physics.Forces[core.KNOCKBACK] = &core.Vector2{X: 0, Y: 0}
 		}
 	}
 

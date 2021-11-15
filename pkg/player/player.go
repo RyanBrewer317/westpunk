@@ -11,14 +11,14 @@ import (
 
 func DrawPlayer(screen *ebiten.Image, player core.Player, x float64, y float64) {
 	// draw the limbs in a different order based on which way the player is facing
-	if player.Stance.Direction == core.RIGHT {
+	if player.Stance.Direction == core.DIRECTION_RIGHT {
 		draw_player_right_arm(screen, player, x, y)
 		draw_player_right_leg(screen, player, x, y)
 		draw_player_torso(screen, player, x, y)
 		draw_player_head(screen, player, x, y)
 		draw_player_left_leg(screen, player, x, y)
 		draw_player_left_arm(screen, player, x, y)
-	} else if player.Stance.Direction == core.LEFT {
+	} else if player.Stance.Direction == core.DIRECTION_LEFT {
 		draw_player_left_arm(screen, player, x, y)
 		draw_player_left_leg(screen, player, x, y)
 		draw_player_torso(screen, player, x, y)
@@ -199,7 +199,7 @@ func draw_player_piece(screen *ebiten.Image, imgx1 int, imgy1 int, imgx2 int, im
 	h := igh * core.PIXEL_YARD_RATIO
 	direction_scale := 1.0
 	direction_translation := 0.0
-	if direction == core.LEFT {
+	if direction == core.DIRECTION_LEFT {
 		direction_scale = -1                // reverse the x scaling if the player is facing left
 		direction_translation = float64(wi) // translate by the width of the piece if the player is facing left
 	}
@@ -239,9 +239,9 @@ func SetPlayerHeight(p *core.Player) {
 
 func StopMovingRight(p *core.Player) {
 	if p.MovingLeft { // if they're still holding down the key showing intent to walk left
-		core.ChangeWalkState(p, core.WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMAtION_TYPE_WALKING_LEFT, stances.WalkLeft1, core.WALK_TRANSITION_FRAMES)
 	} else { // if they have no intent of walking in either direciton
-		core.ChangeWalkState(p, core.STANDING, stances.RestRight1, core.WALK_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_STANDING, stances.RestRight1, core.WALK_TRANSITION_FRAMES)
 	}
 	p.MovingRight = false
 	// swap what walk1 and walk2 are referring to, so that spamming the walk key still makes the legs try to cross each time
@@ -252,9 +252,9 @@ func StopMovingRight(p *core.Player) {
 
 func StopMovingLeft(p *core.Player) {
 	if p.MovingRight { // if they're still holding down the key showing intent to walk right
-		core.ChangeWalkState(p, core.WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_WALKING_RIGHT, stances.WalkRight1, core.WALK_TRANSITION_FRAMES)
 	} else { // if they have no intent of walking in either direction
-		core.ChangeWalkState(p, core.STANDING, stances.RestLeft1, core.WALK_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_STANDING, stances.RestLeft1, core.WALK_TRANSITION_FRAMES)
 	}
 	p.MovingLeft = false
 	// swap what walk1 and walk2 are referring to, so that spamming the walk key still makes the legs try to cross each time
@@ -271,35 +271,36 @@ func ContinueStance(p *core.Player) {
 
 func StartJump(p *core.Player) {
 	// if the player is walking to the right, they're now leaping to the right
-	if p.Stance.Direction == core.RIGHT {
-		if p.WalkingState == core.WALKING_RIGHT {
-			core.ChangeWalkState(p, core.LEAPING_RIGHT, stances.LeapRight, core.JUMP_TRANSITION_FRAMES)
+	if p.Stance.Direction == core.DIRECTION_RIGHT {
+		if p.WalkingState == core.ANIMATION_TYPE_WALKING_RIGHT {
+			core.ChangeWalkState(p, core.ANIMATION_TYPE_LEAPING_RIGHT, stances.LeapRight, core.JUMP_TRANSITION_FRAMES)
 		} else { // if they arent walking, the jump is straight up and down, facing right
-			core.ChangeWalkState(p, core.JUMPING_RIGHT, stances.JumpRight1, core.JUMP_TRANSITION_FRAMES)
+			core.ChangeWalkState(p, core.ANIMATION_TYPE_JUMPING_RIGHT, stances.JumpRight1, core.JUMP_TRANSITION_FRAMES)
 		}
 	} else { // if the player is walking to the left, theyre now leaping to the left
-		if p.WalkingState == core.WALKING_LEFT {
-			core.ChangeWalkState(p, core.LEAPING_LEFT, stances.LeapLeft, core.JUMP_TRANSITION_FRAMES)
+		if p.WalkingState == core.ANIMAtION_TYPE_WALKING_LEFT {
+			core.ChangeWalkState(p, core.ANIMATION_TYPE_LEAPING_LEFT, stances.LeapLeft, core.JUMP_TRANSITION_FRAMES)
 		} else { // if they arent walking, the jump is straight up and down, facing left
-			core.ChangeWalkState(p, core.JUMPING_LEFT, stances.JumpLeft1, core.JUMP_TRANSITION_FRAMES)
+			core.ChangeWalkState(p, core.ANIMAtiON_TYPE_JUMPING_LEFT, stances.JumpLeft1, core.JUMP_TRANSITION_FRAMES)
 		}
 	}
 }
 
 func ActualJump(p *core.Player) {
-	p.Physics.Forces[core.JUMP_FORCE] = &core.Vector2{X: 0, Y: 0.5}
+	// apply the jump force to the player's physics component
+	p.Physics.Forces[core.FORCE_TYPE_JUMP] = &core.Vector2{X: 0, Y: 0.5}
 }
 
 func EndJump(p *core.Player) {
 	// if you were transitioning to jump3, transition to either walking or standing based on if the movement keys are being held down
 	if p.MovingLeft {
-		core.ChangeWalkState(p, core.WALKING_LEFT, stances.WalkLeft1, core.JUMP_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMAtION_TYPE_WALKING_LEFT, stances.WalkLeft1, core.JUMP_TRANSITION_FRAMES)
 	} else if p.MovingRight {
-		core.ChangeWalkState(p, core.WALKING_RIGHT, stances.WalkRight1, core.JUMP_TRANSITION_FRAMES)
-	} else if p.WalkingStanceTo.Direction == core.RIGHT {
-		core.ChangeWalkState(p, core.STANDING, stances.RestRight1, core.JUMP_TRANSITION_FRAMES)
-	} else if p.WalkingStanceTo.Direction == core.LEFT {
-		core.ChangeWalkState(p, core.STANDING, stances.RestLeft1, core.JUMP_TRANSITION_FRAMES)
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_WALKING_RIGHT, stances.WalkRight1, core.JUMP_TRANSITION_FRAMES)
+	} else if p.WalkingStanceTo.Direction == core.DIRECTION_RIGHT {
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_STANDING, stances.RestRight1, core.JUMP_TRANSITION_FRAMES)
+	} else if p.WalkingStanceTo.Direction == core.DIRECTION_LEFT {
+		core.ChangeWalkState(p, core.ANIMATION_TYPE_STANDING, stances.RestLeft1, core.JUMP_TRANSITION_FRAMES)
 	}
 }
 
@@ -314,7 +315,7 @@ func PositionRightFoot(player *core.Player, x float64, y float64) {
 	dify2, difx2 := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx + difx2
 	pelvis_y := player.Physics.Position.Y + player.Physics.Height + dify - dify2
-	player.Stance.RightUpperLeg, player.Stance.RightLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
+	player.Stance.RightUpperLeg, player.Stance.RightLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.DIRECTION_LEFT)
 }
 
 func PositionLeftFoot(player *core.Player, x float64, y float64) {
@@ -322,7 +323,7 @@ func PositionLeftFoot(player *core.Player, x float64, y float64) {
 	dify, difx := torso_rotation_diff(core.TORSO_HEIGHT, *player)
 	pelvis_x := player.Physics.Position.X + difx
 	pelvis_y := player.Physics.Position.Y + player.Physics.Height - dify
-	player.Stance.LeftUpperLeg, player.Stance.LeftLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.LEFT)
+	player.Stance.LeftUpperLeg, player.Stance.LeftLowerLeg = core.IK(core.UPPER_LEG_HEIGHT, core.LOWER_LEG_HEIGHT, pelvis_x, pelvis_y, x, y, player.Stance.Direction == core.DIRECTION_LEFT)
 }
 
 func PositionRightHand(player *core.Player, x float64, y float64) {
@@ -330,12 +331,12 @@ func PositionRightHand(player *core.Player, x float64, y float64) {
 	difx, dify := torso_rotation_diff(core.TORSO_WIDTH, *player)
 	shoulder_x := player.Physics.Position.X + difx
 	shoulder_y := player.Physics.Position.Y + player.Physics.Height + dify
-	player.Stance.RightUpperArm, player.Stance.RightLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
+	player.Stance.RightUpperArm, player.Stance.RightLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.DIRECTION_RIGHT)
 }
 
 func PositionLeftHand(player *core.Player, x float64, y float64) {
 	// use inverse kinematics to position the player's left hand at (x, y)
 	shoulder_x := player.Physics.Position.X
 	shoulder_y := player.Physics.Position.Y + player.Physics.Height
-	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.RIGHT)
+	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.DIRECTION_RIGHT)
 }

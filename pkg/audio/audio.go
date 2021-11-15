@@ -99,7 +99,10 @@ const music_volume_base = 2
 const sfx_volume_base = 2
 
 func Init() {
-	files := [1]sound_file{{name: "0010840.mp3", id: core.SOUND_RS, kind: core.SFX}}
+	// set up the audio engine
+
+	// load the sounds and put them in the proper bank
+	files := [1]sound_file{{name: "0010840.mp3", id: core.SOUND_RS, kind: core.AUDIO_TYPE_SFX}}
 	for i := 0; i < len(files); i++ {
 		f, err := os.Open(files[i].name)
 		if err != nil {
@@ -110,7 +113,7 @@ func Init() {
 			log.Fatal(err)
 		}
 		switch files[i].kind {
-		case core.MUSIC:
+		case core.AUDIO_TYPE_MUSIC:
 			resampled := beep.Resample(4, format.SampleRate, fixed_samplerate, streamer)
 			music_bank[files[i].id] = &music{
 				resampler:   resampled,
@@ -118,7 +121,7 @@ func Init() {
 				sample_rate: format.SampleRate,
 			}
 
-		case core.SFX:
+		case core.AUDIO_TYPE_SFX:
 			buffer := beep.NewBuffer(format)
 			buffer.Append(streamer)
 			streamer.Close()
@@ -130,7 +133,7 @@ func Init() {
 	}
 
 	speaker.Init(fixed_samplerate, fixed_samplerate.N(time.Second/10))
-	go speaker.Play(&audio_mixer)
+	go speaker.Play(&audio_mixer) // this is the only streamer that will ever actually be playing. It's silent at first
 	audio_mixer.Add(&music_mixer)
 	audio_mixer.Add(&sfx_mixer)
 }
@@ -146,6 +149,7 @@ func Close() {
 }
 
 func PlaySFX(audio_id core.AudioID, position core.Vector2) {
+	// position is used to change volume, panning, etc as the main player moves around
 	buffer := sfx_bank[audio_id].buffer
 	s := buffer.Streamer(0, buffer.Len())
 	resampled := beep.Resample(4, sfx_bank[audio_id].sample_rate, fixed_samplerate, s)
@@ -165,6 +169,7 @@ func PlaySFX(audio_id core.AudioID, position core.Vector2) {
 }
 
 func PlayMusic(audio_id core.AudioID) {
+	// clear the queue, then add song audio_id to the queue
 	queue = []beep.StreamSeeker{}
 	add_to_queue(*music_bank[audio_id].streamer)
 }
@@ -174,6 +179,8 @@ func QueueMusic(audio_id core.AudioID) {
 }
 
 func UpdateSFXBasedOnPositions(x float64) {
+	// change the volume, panning, etc of every actively-playing sfx based on it's distance from x
+	// TODO: this should probably be a distance from a point (x, y) instead of ignoring the y axis lol
 	speaker.Lock()
 	for key := range active_sfx {
 		if math.Abs(x-active_sfx[key].position.X) > core.EARSHOT {
@@ -206,12 +213,14 @@ func TogglePause(audio_id core.AudioID) {
 }
 
 func SetMusicVolume(volume float64) {
+	// set the exponent of 2 (the base)
 	speaker.Lock()
 	*music_volume = volume
 	speaker.Unlock()
 }
 
 func SetSFXVolume(volume float64) {
+	// set the exponent of 2 (the base)
 	speaker.Lock()
 	*sfx_volume = volume
 	speaker.Unlock()

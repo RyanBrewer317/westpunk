@@ -1,8 +1,6 @@
 package physics
 
 import (
-	"fmt"
-
 	"ryanbrewer.page/core"
 )
 
@@ -69,8 +67,6 @@ func ConfineToPlace(p *core.PhysicsComponent) {
 	p.Grounded, ground_y = Grounded(*p)
 	if p.Grounded {
 		p.Position.Y = ground_y
-	} else {
-		fmt.Print(0)
 	}
 }
 
@@ -113,7 +109,9 @@ func Grounded(p core.PhysicsComponent) (bool, float64) {
 	// the area around the feet
 	chunklets := append(core.Grid[core.Coordinate{X: int(p.Position.X), Y: int(p.Position.Y)}], core.Grid[core.Coordinate{X: int(p.Position.X), Y: int(p.Position.Y) - 1}]...)
 	chunklets = append(chunklets, core.Grid[core.Coordinate{X: int(p.Position.X) + 1, Y: int(p.Position.Y)}]...)
-	chunklets = append(chunklets, core.Grid[core.Coordinate{X: int(p.Position.Y) + 1, Y: int(p.Position.Y) - 1}]...)
+	chunklets = append(chunklets, core.Grid[core.Coordinate{X: int(p.Position.X) + 1, Y: int(p.Position.Y) - 1}]...)
+	chunklets = append(chunklets, core.Grid[core.Coordinate{X: int(p.Position.X) - 1, Y: int(p.Position.Y)}]...)
+	chunklets = append(chunklets, core.Grid[core.Coordinate{X: int(p.Position.X) - 1, Y: int(p.Position.Y) - 1}]...)
 	if len(chunklets) == 0 { // there's nothing around that area so just return whether or not the player is standing on the ground
 		return p.Position.Y <= core.GROUND_Y+0.01, core.GROUND_Y
 	}
@@ -133,7 +131,7 @@ func Grounded(p core.PhysicsComponent) (bool, float64) {
 			thing_top_at_x = thing.Physics.Position.Y + (p.Position.X - thing.Physics.Position.X)
 		}
 		if core.ObstructionTable[thing.Type] == core.OBSTRUCTION_TYPE_RIGHT_SLANT_45 {
-			thing_top_at_x = thing.Physics.Position.Y + (thing.Physics.Position.X - (p.Position.X + p.Width))
+			thing_top_at_x = thing.Physics.Position.Y + (thing.Physics.Position.X + thing.Physics.Width - (p.Position.X + p.Width))
 		}
 		// if the top at x is higher than any found so far, set it to top_height_under_x
 		if thing_top_at_x > float64(top_height_under_x) {

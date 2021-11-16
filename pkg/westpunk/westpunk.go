@@ -39,6 +39,7 @@ func init() {
 	core.ObstructionTable = make(map[core.ThingType]core.ObstructionType)
 	core.ObstructionTable[core.THING_TYPE_OAK] = core.OBSTRUCTION_TYPE_UNOBSTRUCTIVE
 	core.ObstructionTable[core.THING_TYPE_OAK_LOG] = core.OBSTRUCTION_TYPE_UNOBSTRUCTIVE
+	core.ObstructionTable[core.THING_TYPE_RAMP_RIGHT_45] = core.OBSTRUCTION_TYPE_RIGHT_SLANT_45
 
 	// load the game assets
 	// this feels optimizable
@@ -65,6 +66,10 @@ func init() {
 		log.Fatal(err)
 	}
 	core.BackgroundImg, _, err = ebitenutil.NewImageFromFile("background.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	core.RightRamp45Img, _, err = ebitenutil.NewImageFromFile("slant_right_45.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -202,10 +207,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		for j := chunk.StartX; j < chunk.EndX; j++ {
 			chunklet := core.Grid[core.Coordinate{X: j, Y: i}]
 			for k := 0; k < len(chunklet); k++ {
-				if chunklet[k].Type == core.THING_TYPE_OAK {
-					draw_oak(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
-				} else if chunklet[k].Type == core.THING_TYPE_OAK_LOG {
-					draw_oaklog(screen, chunklet[k].Physics.Position.X*core.PIXEL_YARD_RATIO, chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO+chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO)
+				x := chunklet[k].Physics.Position.X * core.PIXEL_YARD_RATIO
+				y := chunklet[k].Physics.Position.Y*core.PIXEL_YARD_RATIO + chunklet[k].Physics.Height*core.PIXEL_YARD_RATIO
+				switch chunklet[k].Type {
+				case core.THING_TYPE_OAK:
+					draw_oak(screen, x, y)
+					break
+				case core.THING_TYPE_OAK_LOG:
+					draw_oaklog(screen, x, y)
+					break
+				case core.THING_TYPE_RAMP_RIGHT_45:
+					draw_right_ramp_45(screen, x, y)
 				}
 			}
 			// if there's ground here, draw some ground
@@ -271,6 +283,14 @@ func draw_oaklog(screen *ebiten.Image, x float64, y float64) {
 	screen.DrawImage(core.OakLogImg, logDrawOptions)
 }
 
+func draw_right_ramp_45(screen *ebiten.Image, x float64, y float64) {
+	// resize and translate the right ramp 45 image, then put it on screen
+	draw_options := &ebiten.DrawImageOptions{}
+	draw_options.GeoM.Reset()
+	core.ResizeImage(core.RightRamp45Img, draw_options, core.RAMP_RIGHT_45_WIDTH*core.PIXEL_YARD_RATIO, core.RAMP_RIGHT_45_HEIGHT*core.PIXEL_YARD_RATIO)
+	core.DrawImage(screen, core.RightRamp45Img, *draw_options, x-core.VP.X, core.GetPXY(y/core.PIXEL_YARD_RATIO)+core.VP.Y)
+}
+
 func main() {
 	defer audio.Close()
 	audio.Init()
@@ -287,8 +307,8 @@ func main() {
 	rows := dbget(db, "select * from things WHERE placeID = \"place0\"") // TODO in the future we need to get the main player's place and use that instead
 	defer rows.Close()
 	for rows.Next() {
-		var thingID, placeID, location, offset, textureID, thingtype string
-		err = rows.Scan(&thingID, &placeID, &location, &offset, &textureID, &thingtype)
+		var thingID, placeID, location, offset, thingtype string
+		err = rows.Scan(&thingID, &placeID, &location, &offset, &thingtype)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -309,11 +329,9 @@ func main() {
 						X: float64(x) + offset_x,
 						Y: float64(y) + offset_y,
 					},
-					Height:      core.OAK_HEIGHT,
-					Width:       core.OAK_WIDTH,
-					Forces:      make(map[core.ForceType]*core.Vector2),
-					Obstructive: false,
-					Grounded:    true,
+					Height: core.OAK_HEIGHT,
+					Width:  core.OAK_WIDTH,
+					Forces: make(map[core.ForceType]*core.Vector2),
 				},
 			})
 		case "oaklog":
@@ -324,10 +342,22 @@ func main() {
 						X: float64(x) + offset_x,
 						Y: float64(y) + offset_y,
 					},
-					Height:      core.OAK_LOG_HEIGHT,
-					Width:       core.OAK_LOG_WIDTH,
-					Forces:      make(map[core.ForceType]*core.Vector2),
-					Obstructive: true,
+					Height: core.OAK_LOG_HEIGHT,
+					Width:  core.OAK_LOG_WIDTH,
+					Forces: make(map[core.ForceType]*core.Vector2),
+				},
+			})
+		case "rightramp45":
+			core.Grid[core.Coordinate{X: x, Y: y}] = append(core.Grid[core.Coordinate{X: x, Y: y}], core.ThingInstance{
+				Type: core.THING_TYPE_RAMP_RIGHT_45,
+				Physics: core.PhysicsComponent{
+					Position: core.Vector2{
+						X: float64(x) + offset_x,
+						Y: float64(y) + offset_y,
+					},
+					Height: core.RAMP_RIGHT_45_HEIGHT,
+					Width:  core.RAMP_RIGHT_45_WIDTH,
+					Forces: make(map[core.ForceType]*core.Vector2),
 				},
 			})
 		}

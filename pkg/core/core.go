@@ -86,14 +86,13 @@ func (v *Vector2) Add(other Vector2) {
 
 // the block of information that the physics engine operates on and that the graphics system uses for positioning. Later an AI system will probably operate on it too
 type PhysicsComponent struct {
-	Position    Vector2
-	Motion      Vector2
-	Velocity    Vector2
-	Forces      map[ForceType]*Vector2
-	Height      float64
-	Width       float64
-	Obstructive bool
-	Grounded    bool
+	Position Vector2
+	Motion   Vector2
+	Velocity Vector2
+	Forces   map[ForceType]*Vector2
+	Height   float64
+	Width    float64
+	Grounded bool
 }
 
 // a static thing somewhere on the grid
@@ -131,6 +130,7 @@ const (
 	// thing type enums
 	THING_TYPE_OAK ThingType = iota + 1
 	THING_TYPE_OAK_LOG
+	THING_TYPE_RAMP_RIGHT_45
 	// force type enums
 	FORCE_TYPE_GRAVITY ForceType = iota + 1
 	FORCE_TYPE_JUMP
@@ -158,17 +158,19 @@ const (
 	LOWER_LEG_WIDTH  float64 = 0.05
 	LOWER_LEG_HEIGHT float64 = 0.25
 	// other proportion constants
-	PLACE_WIDTH    float64 = 256
-	PLACE_HEIGHT   float64 = 128
-	PLAYER_WIDTH   float64 = 0.25
-	GROUND_HEIGHT  float64 = SCREEN_HEIGHT / PIXEL_YARD_RATIO
-	GROUND_Y       float64 = 0
-	OAK_HEIGHT     float64 = 5
-	OAK_WIDTH      float64 = 2
-	OAK_LOG_WIDTH  float64 = 0.3
-	OAK_LOG_HEIGHT float64 = 0.3
-	SCREEN_HEIGHT  float64 = 540 // in pixels
-	SCREEN_WIDTH   float64 = 810 // in pixels
+	PLACE_WIDTH          float64 = 256
+	PLACE_HEIGHT         float64 = 128
+	PLAYER_WIDTH         float64 = 0.25
+	GROUND_HEIGHT        float64 = SCREEN_HEIGHT / PIXEL_YARD_RATIO
+	GROUND_Y             float64 = 0
+	OAK_HEIGHT           float64 = 5
+	OAK_WIDTH            float64 = 2
+	OAK_LOG_WIDTH        float64 = 0.3
+	OAK_LOG_HEIGHT       float64 = 0.3
+	RAMP_RIGHT_45_WIDTH  float64 = 1
+	RAMP_RIGHT_45_HEIGHT float64 = 1
+	SCREEN_HEIGHT        float64 = 540 // in pixels
+	SCREEN_WIDTH         float64 = 810 // in pixels
 	// the conversion factor from units to pixels
 	PIXEL_YARD_RATIO float64 = 70
 	// speeds
@@ -216,6 +218,7 @@ var (
 	OakLogImg             *ebiten.Image
 	BackgroundImg         *ebiten.Image
 	SettingsBackgroundImg *ebiten.Image
+	RightRamp45Img        *ebiten.Image
 	BackgroundDrawOptions ebiten.DrawImageOptions
 	FONT                  *truetype.Font // this should be treated as a constant but it must be set initially programmatically
 )

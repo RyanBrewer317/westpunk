@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "audio system.md",
+            "file": "combat.md",
             "mode": "source"
           }
         }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "audio system.md",
+                "file": "combat.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -88,8 +88,10 @@
   },
   "active": "f719ecc901682371",
   "lastOpenFiles": [
-    "audio system.md",
+    "combat.md",
+    "soundtrack design.md",
+    "Video1 script.md",
     "todo.md",
-    "Video1 script.md"
+    "audio system.md"
   ]
 }

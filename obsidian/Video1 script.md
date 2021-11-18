@@ -21,7 +21,7 @@ OH YEAH yeah the code isn't object oriented (:
 The design of the game allows it to be both complex and lightweight
 the render distance is small
 So only about a few dozen objects would be loaded in at a time, with a conceivable max of a hundred or so
-The player is a 2D rigged system, as if it were 3D
+The player is a 2D rigged system
 so I can have customizeably appearance and complex movement
 The animation has two stances for every walking state
 that it interpolates between
@@ -46,14 +46,23 @@ I mean obviously it doesn't... but all of this art is not final lol
 ...
 Biomes will include redwoods, beaches, fields, marshes, and sand dunes
 Which are all places I've played as a kid and I want to focus on that
+The world's story needs to be fleshed out
+but I know there'll be ninjas, gnomes, fairies, and dragons
+I also want to build a story out of in-game events
+such that it's different every play-through
+More on that later :)
 
 The gather/craft loop will be slow and frustrating
 but magically automatable
 I hope starting with automation in mind will help solve power creep later
 
-There will be bosses and cinematic elements but not a set story
+Combat will be complex, with like a hundred craftable weapons
+Basically the materials you use to make the weapon changes its behavior
+And once again, moves will be given by the weapon
+
 Achievements will be used by RNG to create a hero's journey for the player
 Which should be especially interesting in multiplayer
+
 I also want to create a vertically-mixed adaptive soundtrack
 that takes cues from the achievement heroes journey system
 I think difficulty might also be customized by the pacing but ehhhhh idk

@@ -13,7 +13,10 @@ Note: this will likely not be in westpunk/bin!
 <br><br>
 Conventions:
  - Modularity is from the Go module system, instead of classes
+ - The code does not abide by OOP principles, intentionally. It is organized into Go modules, which are internally data-oriented in general. There is room for improvement in this area, however.
  - Four space indentation
+ - Opening curly braces don't get their own line. You know what I'm talking about
+ - Comments at the end of a line of code have one space between the code and the double-slash, and one space between the double-slash and the commented text
  - File names, unexported identifiers, and modules names are all lowercase, with underscores
  - Exported identifiers have first letters of each word capitalized, no spaces
  - For the most part, instead of methods, the code uses functions that take pointers

@@ -8,7 +8,7 @@ The world generates infinitely in the form of a 2D map of finite-area locations 
 The game is written in Go and uses the Ebiten graphics library (https://ebiten.org/) and no game engine.
 You can run the game by running the proper executable in bin/, from the src/westpunk directory.
 If this doesn't work, there are zip files in src/westpunk that, when extracted into an empty folder, should run the game as well.
-If *this* doesn't work and you have go installed, you can go into the src/westpunk directory and run `go install`, 
+If *this* doesn't work and you have Go installed, you can go into the src/westpunk directory and run `go install`, 
 then go to your Go bin and run the westpunk executable created.
 Note: your Go bin will likely not be in westpunk/bin!
 <br><br>

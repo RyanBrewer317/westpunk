@@ -6,10 +6,11 @@ Characters are drawn as 2D rigged models, making it easy to change skins and add
 The world generates infinitely in the form of a 2D map of finite-area locations you can visit, helping the world feel more 3D.
 <br><br>
 The game is written in Go and uses the Ebiten graphics library (https://ebiten.org/) and no game engine.
-You can run the game by running the westpunk/bin/westpunk executable from the src/westpunk directory.
-If this doesn't work on your system, and you have go installed, you go into the westpunk/src/westpunk directory and run `go install`, 
+You can run the game by running the proper executable in bin/, from the src/westpunk directory.
+If this doesn't work, there are zip files in src/westpunk that, when extracted into an empty folder, should run the game as well.
+If *this* doesn't work and you have go installed, you can go into the src/westpunk directory and run `go install`, 
 then go to your Go bin and run the westpunk executable created.
-Note: this will likely not be in westpunk/bin!
+Note: your Go bin will likely not be in westpunk/bin!
 <br><br>
 Conventions:
  - Modularity is from the Go module system, instead of classes

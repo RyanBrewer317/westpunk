@@ -340,3 +340,28 @@ func PositionLeftHand(player *core.Player, x float64, y float64) {
 	shoulder_y := player.Physics.Position.Y + player.Physics.Height
 	player.Stance.LeftUpperArm, player.Stance.LeftLowerArm = core.IK(core.UPPER_ARM_HEIGHT, core.LOWER_ARM_HEIGHT, shoulder_x, shoulder_y, x, y, player.Stance.Direction == core.DIRECTION_RIGHT)
 }
+
+func LeftFootPos(player core.Player) core.Vector2 {
+	theta := math.Mod(player.Stance.Torso+player.Stance.LeftUpperLeg, 2*math.Pi)
+	if theta < 0 {
+		theta += 2 * math.Pi
+	}
+	// calculate the location of the left pelvis joint
+	difx, dify := torso_rotation_diff(core.UPPER_LEG_WIDTH/2, player)
+	dify2, difx2 := torso_rotation_diff(core.TORSO_HEIGHT, player) // I reverse x and y here so that the argument r represents travelling down the body now instead of to the right
+	pelvis_left_x := player.Physics.Position.X + difx + difx2
+	pelvis_left_y := player.Physics.Position.Y + dify - dify2
+	// rotate the drawing context by an additional amount, the left lower leg angle
+	theta2 := math.Mod(theta+player.Stance.LeftLowerLeg, 2*math.Pi)
+	if theta2 < 0 {
+		theta2 += 2 * math.Pi
+	}
+	// calculate the left knee joint
+	leftkneex := pelvis_left_x - (core.UPPER_LEG_HEIGHT * math.Sin(theta))
+	leftkneey := pelvis_left_y - (core.UPPER_LEG_HEIGHT * math.Cos(theta))
+	// calculate the top left corner of the left lower leg based on the left knee joint
+	return core.Vector2{
+		X: leftkneex - (core.LOWER_LEG_HEIGHT * math.Sin(theta2)),
+		Y: leftkneey - (core.LOWER_LEG_HEIGHT * math.Cos(theta2)),
+	}
+}

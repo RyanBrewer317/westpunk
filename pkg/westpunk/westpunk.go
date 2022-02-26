@@ -132,6 +132,14 @@ func (g *Game) Update() error {
 	// apply physics to stuff
 	physics.Move(&core.MainPlayer.Physics)
 
+	// foot_pos := player.LeftFootPos(core.MainPlayer)
+	// new_foot_y := foot_pos.Y
+	// // _, new_foot_y := physics.Grounded(core.PhysicsComponent{
+	// // 	Position: foot_pos,
+	// // })
+
+	// player.PositionLeftFoot(&core.MainPlayer, foot_pos.X, new_foot_y)
+
 	// process inputs
 	if (inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyW)) && core.MainPlayer.Physics.Grounded { // if theres a jump intent and the player is on the ground
 		player.StartJump(&core.MainPlayer)
